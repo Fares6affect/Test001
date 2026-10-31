@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <vector>
 #include <string>
+#include <regex>
 using namespace std;
 
 enum class Element {
@@ -140,10 +141,58 @@ public:
 		}
 	}
 	string getOptimizeFormula(
-		string str
+		const Node &node
 	) {
-		
+		switch (node.el) {
+		case Element::Exp:
+			return "e^(" + getOptimizeFormula(*node.left) + ")";
+		case Element::Log:
+			return "log^(" + getOptimizeFormula(*node.left) + ")";
+		case Element::Neg:
+		{
+			string res = getOptimizeFormula(*node.left);
+			for (auto& c : res)
+				switch (c) {
+				case('-'): c = '+'; break;
+				case('+'): c = '-'; break;
+				default: continue;
+				}
+			if (res[0] == '+')
+				res = res.substr(1);
+			else res = "-" + res;
+			return res;
+		}
+		case Element::Conv:
+			return "1/(" + getOptimizeFormula(*node.left) + ")";
+		case Element::Sqrt:
+			return "sqrt(" + getOptimizeFormula(*node.left) + ")";
+		case Element::Add:
+		{
+			string res = getOptimizeFormula(*node.left) + "+" + getOptimizeFormula(*node.right);
+			for (int i = 0;i < res.size() - 1;i++)
+				if (
+					res[i] == '+' && res[i + 1] == '-' || res[i] == '-' && res[i + 1] == '+'
+					)
+					res.replace(i, 2, "-");
+			return res;
+		}
+		case Element::Mul: {
+			string res1 = getOptimizeFormula(*node.left);
+			string res2 = getOptimizeFormula(*node.right);
+			vector<string> el_res1;
+			for(int i=0;i<res1.size();i++)
+				if(res1[i])
+			return res;
+		}
+		case Element::Const:
+			return to_string(node.value);
+		case Element::Var:
+			return "x" + to_string(node.variableIndex);
+		default: throw logic_error("Unknown element");
+		}
 	}
+	
+	//((x0+-(x1)))*(-(x1))
 };
 
 int main()
@@ -170,10 +219,10 @@ int main()
 		move(negativeX2)
 	);
 	Calculator calculator;
-	int n, m;
+	/*int n, m;
 	cin >> n >> m;
 	vector<int> variables{ n, m };
 	cout << calculator.getFormula(*mult) << endl;
-	cout << calculator.calculate(*mult, variables);
-
+	cout << calculator.calculate(*mult, variables);*/
+	cout << calculator.getOptimizeFormula(*mult);
 }

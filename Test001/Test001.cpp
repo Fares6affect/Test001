@@ -533,42 +533,86 @@ public:
 		return son;
 	}
 
-	void mutate() {
-
+	unique_ptr<Node> mutateDelete(const Node& parent) {
+		unique_ptr<Node> son = parent.clone();
+		vector<UsingNode> nodes;
+		usingNodes(nodes, son, 1);
+		vector<UsingNode> currentNodes;
+		for (UsingNode& node : nodes)
+			if (Node::arity(node.node->get()->el) == 1)
+				currentNodes.push_back(node);
+		uniform_int_distribution<> nodeDist(0, currentNodes.size() - 1);
+		size_t  id = nodeDist(rand);
+		currentNodes[id].node = move(currentNodes[id].node);
+		return son;
 	}
+
+	unique_ptr<Node> mutateInsert(const Node& parent) {
+		unique_ptr<Node> son = parent.clone();
+		vector<UsingNode> nodes;
+		usingNodes(nodes, son, 1);
+		uniform_int_distribution<> nodeDist(0, nodes.size() - 1);
+		UsingNode node = nodes[nodeDist(rand)];
+		uniform_int_distribution unarOperDist(2, 6);
+		unique_ptr<Node> root = Node::makeUnarOper(
+			static_cast<Element>(unarOperDist(rand)),
+			move(*node.node)
+		);
+		return son;
+	}
+
+	unique_ptr<Node> mutateSwap(const Node& parent) {
+		unique_ptr<Node> son = parent.clone();
+		vector<UsingNode> nodes;
+		usingNodes(nodes, son, 1);
+		vector<UsingNode> currentNodes;
+		for (UsingNode& node : nodes)
+			if (Node::arity(node.node->get()->el) == 2)
+				currentNodes.push_back(node);
+		uniform_int_distribution<> nodeDist(0, currentNodes.size() - 1);
+		UsingNode node = currentNodes[nodeDist(rand)];
+		node.node->get()->left.swap(node.node->get()->right);
+		return son;
+	}
+
+	unique_ptr<Node> mutate(const Node& parent) {
+		uniform_int_distribution<> mutateDist(0, 19);
+		switch (mutateDist(rand)) {
+			case 0:
+			case 1:
+			case 2:
+				return mutateFunction(parent);//15% мутации функции
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+				return mutateSubTree(parent);//20% мутации поддерева
+			case 7:
+			case 8:
+			case 9:
+			case 10:
+			case 11:
+				return mutateDelete(parent);//25% мутации удаления узла
+			case 12:
+			case 13:
+			case 14:
+			case 15:
+			case 16:
+				return mutateInsert(parent);//25% мутации добавления узла
+			case 17:
+			case 18:
+			case 19:
+				return mutateSwap(parent);//15% мутации замени потомков
+		}
+	}
+};
+
+class Population {
 
 };
 
 int main()
 {
-	/*unique_ptr<Node> x1 = Node::makeVar(0);
-	unique_ptr<Node> y = Node::makeVar(1);
-	unique_ptr<Node> negativeY = Node::makeUnarOper(
-		Element::Neg,
-		move(y)
-	);
-	unique_ptr<Node> add = Node::makeBinOper(
-		Element::Add,
-		move(x1),
-		move(negativeY)
-	);
-	unique_ptr<Node> x2 = Node::makeVar(1);
-	unique_ptr<Node> negativeX2 = Node::makeUnarOper(
-		Element::Neg,
-		move(x2)
-	);
-	unique_ptr<Node> mult = Node::makeBinOper(
-		Element::Mul,
-		move(add),
-		move(negativeX2)
-	);
-	int n, m;
-	cin >> n >> m;
-	vector<int> variables{ n, m };
-	cout << calculator.getFormula(*mult) << endl;
-	cout << calculator.calculate(*mult, variables);
-	cout << calculator.getOptimizeFormula(*mult);*/
-
 	Calculator calculator;
 	int depth; cin >> depth;
 	int n; cin >> n;
@@ -577,5 +621,4 @@ int main()
 		unique_ptr<Node> node = generator.generate();
 		cout << calculator.getFormula(*node) << endl;
 	}
-
 }

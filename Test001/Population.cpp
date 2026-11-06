@@ -1,20 +1,24 @@
 #include "Population.h"
 
-Population::Population(size_t capacity) : capacity(capacity) {
+Population::Population(
+	size_t capacity,
+	Meter& meter
+	) : capacity(capacity),
+	meter(meter)
+{
 	if (capacity < 1)
 		throw logic_error("Размер популяции меньше нуля");
 	individuals.reserve(capacity);
 }
 
 void Population::addIndividual(
-	unique_ptr<Node> tree,
-	double measure
+	unique_ptr<Node> tree
 ) {
 	if (individuals.size() >= capacity)
 		throw logic_error("");
 	individuals.emplace_back(
 		move(tree),
-		measure
+		meter.measure(*tree.get())
 	);
 }
 

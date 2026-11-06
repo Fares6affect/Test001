@@ -2,16 +2,17 @@
 
 Improver::Improver(
 	size_t maxDepth,
-	size_t count,
-	size_t countVariables
+	size_t sizeSelection,
+	size_t countVariables,
+	Generator& generator
 ) :rand(random_device{}()),
 maxDepth(maxDepth),
-count(count),
-generator(maxDepth, countVariables)
+sizeSelection(sizeSelection),
+generator(generator)
 {
 	if (maxDepth < 1)
 		throw logic_error("Максимальная глубина должна быть >=1");
-	if (count < 1)
+	if (sizeSelection < 1)
 		throw logic_error("Количество родителей должно быть >=1");
 }
 
@@ -22,7 +23,7 @@ size_t Improver::selection(
 		throw logic_error("Список пуст");
 	uniform_int_distribution<> idParent(0, measures.size() - 1);
 	size_t res = 0; double measure = +INFINITY;
-	for (size_t i = 0; i < count; i++) {
+	for (size_t i = 0; i < sizeSelection; i++) {
 		size_t id = idParent(rand);
 		if (measure > measures[id]) {
 			measure = measures[id];

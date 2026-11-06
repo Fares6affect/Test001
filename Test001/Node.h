@@ -6,13 +6,13 @@ using namespace std;
 
 class Node
 {
-	friend class Simplifier;
 public:
 	Element el;
 	double value = 0.0;
 	size_t variableIndex = 0;
 	unique_ptr<Node> left;
 	unique_ptr<Node> right;
+
 	Node(Element element);
 
 	static unique_ptr<Node> makeConst(

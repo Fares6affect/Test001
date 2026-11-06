@@ -5,13 +5,7 @@ Generator::Generator(
 	size_t countVariables
 ) :rand(random_device{}()),
 maxDepth(maxDepth),
-countVariables(countVariables)
-{
-	if (maxDepth < 1)
-		throw logic_error("Максимальная глубина должна быть >=1");
-	if (countVariables < 1)
-		throw logic_error("Количество переменных должно быть >=1");
-}
+countVariables(countVariables){ }
 
 unique_ptr<Node> Generator::generateTerminal() {
 	if (countVariables < 1)

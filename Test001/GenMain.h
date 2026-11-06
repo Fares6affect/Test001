@@ -13,24 +13,15 @@ private:
 	size_t elitismCount;
 	double target;
 
-	Generator generator;
-	Improver improver;
-	Meter& meter;
+	Meter meter;
+	Generator* generator;
+	Improver* improver;
 	Simplifier simplifier;
 
 	Population createPopulation();
 
 public:
-	GenMain(
-		size_t sizePopulation,
-		size_t maxCountPopulation,
-		size_t elitismCount,
-		double target,
-		Generator generator,
-		Improver improver,
-		Meter& meter,
-		Simplifier simplifier
-	);
+	GenMain();
 
 	unique_ptr<Node> getFuncion();
 };

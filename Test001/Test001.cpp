@@ -18,4 +18,5 @@ int main()
 		unique_ptr<Node> node = generator.generate();
 		cout << calculator.getFormula(*node) << endl;
 	}
+	while(true){}
 }

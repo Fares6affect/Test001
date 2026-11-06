@@ -6,15 +6,16 @@ class Improver {
 private:
 	mt19937 rand;
 	size_t maxDepth;
-	size_t count;
-	Generator generator;
+	size_t sizeSelection;
+	Generator& generator;
 
 public:
 
 	Improver(
 		size_t maxDepth,
 		size_t count,
-		size_t countVariables
+		size_t countVariables,
+		Generator& generator
 	);
 
 	size_t selection(

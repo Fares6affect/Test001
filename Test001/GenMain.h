@@ -3,6 +3,7 @@
 #include "Improver.h"
 #include "Meter.h"
 #include "Simplifier.h"
+#include "Population.h"
 #include <utility>
 
 class GenMain {
@@ -16,6 +17,8 @@ private:
 	Improver improver;
 	Meter& meter;
 	Simplifier simplifier;
+
+	Population createPopulation();
 
 public:
 	GenMain(

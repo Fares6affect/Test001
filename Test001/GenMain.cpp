@@ -21,6 +21,15 @@ simplifier(move(simplifier))
 	if (sizePopulation<1) throw logic_error("");
 };
 
-unique_ptr<Node> GenMain::getFuncion() {
+Population GenMain::createPopulation() {
+	Population population(sizePopulation);
+	for (size_t i = 0; i < sizePopulation; i++) {
+		unique_ptr<Node> tree = generator.generate();
+		population.addIndividual(tree, meter.measure(t));
+	}
 
+}
+
+unique_ptr<Node> GenMain::getFuncion() {
+	
 }

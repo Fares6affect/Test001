@@ -15,23 +15,6 @@ public:
 	unique_ptr<Node> right;
 	Node(Element element);
 
-/*
-	const Element getElement() const;
-
-	const double getValue() const;
-	void setValue(double value);
-
-	const size_t getVariableIndex();
-
-	const Node* getLeft() const;
-	void setLeft(unique_ptr<Node> node);
-
-	const Node* getRight() const;
-	void setRight(unique_ptr<Node> node);*/
-
-
-	static size_t arity(Element el);
-
 	static unique_ptr<Node> makeConst(
 		double d
 	);
@@ -40,16 +23,18 @@ public:
 		size_t index
 	);
 
+	static unique_ptr<Node> makeUnarOper(
+		Element oper,
+		unique_ptr<Node> left
+	);
+
 	static unique_ptr<Node> makeBinOper(
 		Element oper,
 		unique_ptr<Node> left,
 		unique_ptr<Node> right
 	);
 
-	static unique_ptr<Node> makeUnarOper(
-		Element oper,
-		unique_ptr<Node> left
-	);
+	static size_t arity(Element el);
 
 	bool isTerminal() const;
 

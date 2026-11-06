@@ -139,7 +139,29 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Calculator.cpp" />
+    <ClCompile Include="Generator.cpp" />
+    <ClCompile Include="GenMain.cpp" />
+    <ClCompile Include="Improver.cpp" />
+    <ClCompile Include="Meter.cpp" />
+    <ClCompile Include="Node.cpp" />
+    <ClCompile Include="Population.cpp" />
+    <ClCompile Include="Simplifier.cpp" />
     <ClCompile Include="Test001.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Calculator.h" />
+    <ClInclude Include="Data.h" />
+    <ClInclude Include="Element.h" />
+    <ClInclude Include="Generator.h" />
+    <ClInclude Include="GenMain.h" />
+    <ClInclude Include="Improver.h" />
+    <ClInclude Include="Individual.h" />
+    <ClInclude Include="Meter.h" />
+    <ClInclude Include="Node.h" />
+    <ClInclude Include="Population.h" />
+    <ClInclude Include="Simplifier.h" />
+    <ClInclude Include="UsingNode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

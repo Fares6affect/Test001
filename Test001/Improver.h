@@ -40,4 +40,7 @@ public:
 
 	unique_ptr<Node> mutate(const Node& parent);
 
+	unique_ptr<Node> uniteNodes(const Node& parent1, const Node& parent2);
+
+	unique_ptr<Node> improve(const Node& parent1, const Node& parent2);
 };

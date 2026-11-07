@@ -6,20 +6,32 @@ double Calculator::calculate(
 	const vector<int>& variables
 ) const {
 	switch (node.el) {
-	case Element::Exp:
-		return exp(calculate(*node.left, variables));
+	case Element::Exp:{
+		double res = calculate(*node.left, variables);
+		if (!isfinite(res))
+			throw domain_error("Непредставимое число");
+		return exp(res);
+	}
 	case Element::Log: {
 		double res = calculate(*node.left, variables);
+		if (!isfinite(res))
+			throw domain_error("Непредставимое число");
 		if (res <= 0.0)
 			throw domain_error(
 				"Аргумент логаримфа отрицателен или ноль"
 			);
 		return log(res);
 	}
-	case Element::Neg:
-		return -calculate(*node.left, variables);
+	case Element::Neg: {
+		double res = calculate(*node.left, variables);
+		if (!isfinite(res))
+			throw domain_error("Непредставимое число");
+		return -res;
+	}
 	case Element::Conv: {
 		double res = calculate(*node.left, variables);
+		if (!isfinite(res))
+			throw domain_error("Непредставимое число");
 		if (res == 0.0)
 			throw domain_error(
 				"Деление на ноль"
@@ -29,16 +41,32 @@ double Calculator::calculate(
 	case Element::Sqrt:
 	{
 		double res = calculate(*node.left, variables);
+		if (!isfinite(res))
+			throw domain_error("Непредставимое число");
 		if (res < 0.0)
 			throw domain_error(
 				"Аргумент квадратного корня меньше нуля"
 			);
 		return sqrt(res);
 	}
-	case Element::Add:
-		return calculate(*node.left, variables) + calculate(*node.right, variables);
-	case Element::Mul:
-		return calculate(*node.left, variables) * calculate(*node.right, variables);
+	case Element::Add: {
+		double res1 = calculate(*node.left, variables);
+		if (!isfinite(res1))
+			throw domain_error("Непредставимое число");
+		double res2 = calculate(*node.right, variables);
+		if (!isfinite(res2))
+			throw domain_error("Непредставимое число");
+		return res1 + res2;
+	}
+	case Element::Mul: {
+		double res1 = calculate(*node.left, variables);
+		if (!isfinite(res1))
+			throw domain_error("Непредставимое число");
+		double res2 = calculate(*node.right, variables);
+		if (!isfinite(res2))
+			throw domain_error("Непредставимое число");
+		return res1 * res2;
+	}
 	case Element::Const:
 		return node.value;
 	case Element::Var: {

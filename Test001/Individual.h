@@ -3,6 +3,6 @@
 
 struct Individual
 {
-	unique_ptr<Node> tree;
+	unique_ptr<Node> node;
 	double measure;
 };

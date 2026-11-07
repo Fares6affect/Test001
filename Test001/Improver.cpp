@@ -21,16 +21,22 @@ size_t Improver::selection(
 ) {
 	if (measures.empty())
 		throw logic_error("Список пуст");
+	uniform_real_distribution<> selectionDist(0.0, 1.0);
 	uniform_int_distribution<> idParent(0, measures.size() - 1);
-	size_t res = 0; double measure = +INFINITY;
-	for (size_t i = 0; i < sizeSelection; i++) {
-		size_t id = idParent(rand);
-		if (measure > measures[id]) {
-			measure = measures[id];
-			res = id;
+	if (selectionDist(rand) < 0.85) {
+		size_t res = 0; double measure = +INFINITY;
+		for (size_t i = 0; i < sizeSelection; i++) {
+			size_t id = idParent(rand);
+			if (measure > measures[id]) {
+				measure = measures[id];
+				res = id;
+			}
 		}
+		return res;
 	}
-	return res;
+	else {
+		return idParent(rand);
+	}
 }
 
 void Improver::usingNodes(
@@ -149,32 +155,44 @@ unique_ptr<Node> Improver::mutateSwap(const Node& parent) {
 }
 
 unique_ptr<Node> Improver::mutate(const Node& parent) {
-	uniform_int_distribution<> mutateDist(0, 19);
-	switch (mutateDist(rand)) {
-	case 0:
-	case 1:
-	case 2:
-		return mutateFunction(parent);//15% мутации функции
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-		return mutateSubTree(parent);//20% мутации поддерева
-	case 7:
-	case 8:
-	case 9:
-	case 10:
-	case 11:
-		return mutateDelete(parent);//25% мутации удаления узла
-	case 12:
-	case 13:
-	case 14:
-	case 15:
-	case 16:
-		return mutateInsert(parent);//25% мутации добавления узла
-	case 17:
-	case 18:
-	case 19:
-		return mutateSwap(parent);//15% мутации замени потомков
-	}
+	uniform_real_distribution<> mutateDist(0.0, 1.0);
+	double d = mutateDist(rand);
+	if(d<0.15)
+		return mutateFunction(parent);
+	else if (d < 0.5)
+		return mutateSubTree(parent);
+	else if (d < 0.7)
+		return mutateDelete(parent);
+	else if (d < 0.9)
+		return mutateInsert(parent);
+	else 
+		return mutateSwap(parent);
 }
+
+unique_ptr<Node> Improver::uniteNodes(const Node& parent1, const Node& parent2) {
+	unique_ptr<Node> son1 = parent1.clone();
+	unique_ptr<Node> son2 = parent2.clone();
+	vector<UsingNode> nodes1;
+	vector<UsingNode> nodes2;
+	usingNodes(nodes1, son1, 1);
+	usingNodes(nodes2, son2, 1);
+	uniform_int_distribution<> nodeDist1(0, nodes1.size() - 1);
+	uniform_int_distribution<> nodeDist2(0, nodes2.size() - 1);
+	size_t id1, id2;
+	do {
+		id1 = nodeDist1(rand);
+		id2 = nodeDist2(rand);
+	} while (nodes1[id1].depth + nodes2[id2].node->get()->depth() - 1 > maxDepth);
+	*nodes1[id1].node = move(*nodes2[id2].node);
+	return son1;
+}
+
+unique_ptr<Node> Improver::improve(const Node& parent1, const Node& parent2) {
+	uniform_real_distribution improveDist(0.0, 1.0);
+	double d = improveDist(rand);
+	if (d < 0.4)
+		return uniteNodes(parent1, parent2);
+	else if (d < 0.8)
+		return mutate(parent1);
+	else return generator.generate();
+};

@@ -1,44 +1,24 @@
 #include "Meter.h"
 
-Meter::Meter() {
-	ifstream inFile("D:/Program Files/COURSE/dataTEST");
-	if (!inFile.is_open()) {
-		cerr << "Не удалось открыть файл";
-	}
-	else {
+Meter::Meter(
+	const vector<Data>& data,
+	double fine
+) :data(data), fine(fine){}
 
-	}
-	size_t maxDepth=0;
-	size_t countVariables=0;
-	if (maxDepth < 1)
-		throw logic_error("Максимальная глубина должна быть >=1");
-	if (countVariables < 1)
-		throw logic_error("Количество переменных должно быть >=1");
-}
-
-//Геттеры глобальных переменных
-size_t Meter::getMaxDepth() const{
-	return maxDepth;
-}
-size_t Meter::getCountVariables() const{
-	return countVariables;
-}
-size_t Meter::getSizePopulation() const {
-	return sizePopulation;
-}
-size_t Meter::getmaxCountPopulation() const {
-	return maxCountPopulation;
-}
-size_t Meter::getelitismCount() const {
-	return elitismCount;
-}
-double Meter::getTarget() const {
-	return target;
-}
-
-double Meter::measure(Node& node) {
+double Meter::measure(const Node& node) const{
 	double mse = 0.0;
-	for (int i = 0; i < data.size(); i++)
-		mse += pow(calculator.calculate(node, data[i].parameters) - data[i].answer, 2);
+	try {
+		for (size_t i = 0; i < data.size(); i++) {
+			double difference = calculator.calculate(node, data[i].parameters) - data[i].answer;
+			if (!isfinite(difference))
+				return INFINITY;
+			mse += difference * difference;
+			if (!isfinite(mse))
+				return INFINITY;
+		}
+	}
+	catch (domain_error) {
+		return INFINITY;
+	}
 	return mse / data.size() + fine * (node.size());
 }

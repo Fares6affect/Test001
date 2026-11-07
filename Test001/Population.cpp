@@ -1,28 +1,30 @@
 #include "Population.h"
 
 Population::Population(
-	size_t capacity,
+	size_t sizePopulation,
 	Meter& meter
-	) : capacity(capacity),
+	) : sizePopulation(sizePopulation),
 	meter(meter)
 {
-	if (capacity < 1)
-		throw logic_error("Размер популяции меньше нуля");
-	individuals.reserve(capacity);
+	individuals.reserve(sizePopulation);
 }
 
 void Population::addIndividual(
-	unique_ptr<Node> tree
+	unique_ptr<Node> node
 ) {
-	if (individuals.size() >= capacity)
-		throw logic_error("");
+	double measure = meter.measure(*node.get());
 	individuals.emplace_back(
-		move(tree),
-		meter.measure(*tree.get())
+		move(node),
+		measure
 	);
+	measures.push_back(measure);
+	if (measureBest > measure) {
+		idBest = measures.size()-1;
+		measureBest = measure;
+	}
 }
 
-size_t Population::getSize() {
+size_t Population::getSize() const{
 	return individuals.size();
 }
 
@@ -32,12 +34,35 @@ const Individual& Population::getIndividual(size_t index) const {
 
 void Population::clear() {
 	individuals.clear();
+	measures.clear();
+	idBest = 0;
+	measureBest = +INFINITY;
 }
 
-vector<double> Population::getMeasure() const {
-	vector<double> measures;
-	measures.reserve(individuals.size());
-	for (const Individual& individual : individuals)
-		measures.push_back(individual.measure);
+const vector<double>& Population::getMeasures() const {
 	return measures;
 }
+
+size_t Population::getIdBest() const {
+	return idBest;
+}
+
+double Population::getMeasureBest() const {
+	return measureBest;
+}
+
+Population& Population::operator=(Population&& population) {
+	individuals = move(population.individuals);
+	idBest = population.idBest;
+	measureBest = population.measureBest;
+	measures = move(population.measures);
+	return *this;
+};
+
+Population::Population(Population&& population):
+	individuals(move(population.individuals)),
+	sizePopulation(population.sizePopulation),
+	meter(population.meter),
+	idBest(population.idBest),
+	measureBest(population.measureBest),
+	measures(move(population.measures)){}

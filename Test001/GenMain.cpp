@@ -3,7 +3,7 @@
 
 GenMain::GenMain()
 {
-	ifstream inFileSetting("D:/Program Files/COURSE/SETTING_TEST.txt");
+	ifstream inFileSetting("SETTING_TEST.txt");
 	if (!inFileSetting.is_open()) {
 		throw runtime_error("Файл не найден");
 	}
@@ -33,7 +33,7 @@ GenMain::GenMain()
 		if (fine < 0) throw logic_error("Штраф за размер должнен быть >= 0");
 		inFileSetting.close();
 
-		ifstream inFileData("D:/Program Files/COURSE/DATA_TEST.txt");
+		ifstream inFileData("DATA_TEST.txt");
 		getline(inFileData, number);
 		countVariables = stoull(number);
 		if (countVariables < 1) throw logic_error("Число переменных должно быть >= 1");

@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include "Element.h"
+#include <cmath>
 
 class Calculator {
 public:

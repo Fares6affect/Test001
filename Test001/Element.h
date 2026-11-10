@@ -8,6 +8,7 @@ enum class Element {
 	Neg,
 	Conv,
 	Sqrt,
+	Abs,
 
 	Add,
 	Mul

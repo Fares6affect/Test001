@@ -62,6 +62,7 @@ size_t Node::arity(Element el) {
 	case Element::Neg:
 	case Element::Conv:
 	case Element::Sqrt:
+	case Element::Abs:
 		return 1;
 
 	case Element::Add:

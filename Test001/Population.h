@@ -24,6 +24,11 @@ public:
 		unique_ptr<Node> node
 	);
 
+	void addIndividual(
+		unique_ptr<Node> node,
+		double measure
+	);
+
 	size_t getSize() const;
 
 	const Individual& getIndividual(size_t index) const;
@@ -35,6 +40,8 @@ public:
 	size_t getIdBest() const;
 
 	double getMeasureBest() const;
+
+	void replaceWorst(unique_ptr<Node> node);
 
 	Population& operator=(Population&& population);
 	

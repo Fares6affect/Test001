@@ -1,9 +1,6 @@
 #pragma once
-#include "Generator.h"
-#include "Improver.h"
 #include "Meter.h"
-#include "Simplifier.h"
-#include "Population.h"
+#include "Island.h"
 #include <utility>
 #include <fstream>
 #include <sstream>
@@ -21,13 +18,14 @@ private:
 	size_t countVariables;//Число переменных функции
 	double target;//Максимальное отклонение значений
 
+	size_t countIslands=4;//Число островов
+	size_t intervalMigration=10;//Интервал миграции
+	size_t countMigrant=5;//Число мигрантов
+
 	vector<Data> data;//Данные функции
 	double fine = 0.0;//Штраф за размер выражения
 
 	unique_ptr<Meter> meter;
-	unique_ptr<Generator> generator;
-	unique_ptr<Improver> improver;
-	Simplifier simplifier;
 
 	Population createPopulation();
 
@@ -37,6 +35,10 @@ public:
 	unique_ptr<Node> islandEvolve(
 		Population& population
 	);
+
+	size_t getBestIsland(const vector<unique_ptr<Island>>& islands) const;
+
+	void migration(vector<unique_ptr<Island>>& islands);
 
 	unique_ptr<Node> getFunction();
 };

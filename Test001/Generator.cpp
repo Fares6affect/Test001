@@ -12,8 +12,9 @@ unique_ptr<Node> Generator::generateTerminal() {
 		throw logic_error("Недопустимое количество переменных");
 	uniform_int_distribution<> constOrVar(0, 1);
 	if (constOrVar(rand)) {
-		uniform_real_distribution<> constDist(-rad, rad);
-		return Node::makeConst(constDist(rand));
+		uniform_real_distribution<> exponentDist(-6.0, 6.0);
+		uniform_real_distribution<> signDist(0,1);
+		return Node::makeConst((signDist(rand)*2-1)*pow(10.0,exponentDist(rand)));
 	}
 	uniform_int_distribution<> varDist(0, countVariables - 1);
 	return Node::makeVar(
@@ -22,7 +23,7 @@ unique_ptr<Node> Generator::generateTerminal() {
 }
 
 unique_ptr<Node> Generator::generateUnarOper(size_t depth) {
-	uniform_int_distribution<> unarOperDist(2, 6);
+	uniform_int_distribution<> unarOperDist(2, 7);
 	return Node::makeUnarOper(
 		static_cast<Element>(unarOperDist(rand)),
 		generate(depth + 1)
@@ -30,7 +31,7 @@ unique_ptr<Node> Generator::generateUnarOper(size_t depth) {
 }
 
 unique_ptr<Node> Generator::generateBinOper(size_t depth) {
-	uniform_int_distribution<> binOperDist(7, 8);
+	uniform_int_distribution<> binOperDist(8, 9);
 	return Node::makeBinOper(
 		static_cast<Element>(binOperDist(rand)),
 		generate(depth + 1),

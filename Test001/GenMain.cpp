@@ -1,4 +1,5 @@
 #include "GenMain.h"
+#include <future>
 #include <iostream>
 
 GenMain::GenMain()
@@ -7,113 +8,120 @@ GenMain::GenMain()
 	if (!inFileSetting.is_open()) {
 		throw runtime_error("Файл не найден");
 	}
-	else {
-		string number;
-		getline(inFileSetting, number);
-		sizePopulation = stoull(number);
-		if (sizePopulation < 1) throw logic_error("Размер популяции должен быть >= 1");
-		getline(inFileSetting, number);
-		maxCountPopulation = stoull(number);
-		if (maxCountPopulation < 1) throw logic_error("Число популяций должно быть >= 1");
-		getline(inFileSetting, number);
-		sizeSelection = stoull(number);;
-		if (sizeSelection < 1) throw logic_error("Размер выборки должен быть >= 1");
-		if (sizeSelection > sizePopulation) throw logic_error("Размер выборки должен быть <= размера популяции");
-		getline(inFileSetting, number);
-		elitismCount = stoull(number);
-		if (elitismCount > sizePopulation) throw logic_error("Количество сохраняемых родителей должно быть <= размера популяции");
-		getline(inFileSetting, number);
-		maxDepth = stoull(number);
-		if (maxDepth < 1) throw logic_error("Максимальная глубина должна быть >= 1");
-		getline(inFileSetting, number);
-		target = stold(number);
-		if (target < 0) throw logic_error("Числовая характеристика отклонения должна быть >= 0");
-		getline(inFileSetting, number);
-		fine = stold(number);
-		if (fine < 0) throw logic_error("Штраф за размер должнен быть >= 0");
-		inFileSetting.close();
+	
+	string number;
+	getline(inFileSetting, number);
+	maxDepth = stoull(number);
+	if (maxDepth < 1) throw logic_error("Максимальная глубина должна быть >= 1");
+	getline(inFileSetting, number);
+	sizePopulation = stoull(number);
+	if (sizePopulation < 1) throw logic_error("Размер популяции должен быть >= 1");
+	getline(inFileSetting, number);
+	maxCountPopulation = stoull(number);
+	if (maxCountPopulation < 1) throw logic_error("Число популяций должно быть >= 1");
+	getline(inFileSetting, number);
+	sizeSelection = stoull(number);;
+	if (sizeSelection < 1) throw logic_error("Размер выборки должен быть >= 1");
+	if (sizeSelection > sizePopulation) throw logic_error("Размер выборки должен быть <= размера популяции");
+	getline(inFileSetting, number);
+	elitismCount = stoull(number);
+	if (elitismCount > sizePopulation) throw logic_error("Количество сохраняемых родителей должно быть <= размера популяции");
+	getline(inFileSetting, number);
+	target = stold(number);
+	if (target < 0) throw logic_error("Числовая характеристика отклонения должна быть >= 0");
+	getline(inFileSetting, number);
+	fine = stold(number);
+	if (fine < 0) throw logic_error("Штраф за размер должнен быть >= 0");
+	inFileSetting.close();
 
-		ifstream inFileData("DATA_TEST.txt");
-		getline(inFileData, number);
-		countVariables = stoull(number);
-		if (countVariables < 1) throw logic_error("Число переменных должно быть >= 1");
-		while (getline(inFileData, number)) {
-			stringstream ss(number);
-			Data d;
-			int param;
-			for (size_t i = 0; i < countVariables; i++) {
-				if (!(ss >> param))
-					throw runtime_error("Недостаточно аргументов");
-				d.parameters.push_back(param);
-			}
-			if (!(ss >> d.answer))
-				throw runtime_error("Отсутсвует значение функции");
-			data.push_back(d);
-		}
-		if (data.empty())
-			throw runtime_error("Отсутствуют данные о функции");
+	ifstream inFileData("DATA_TEST.txt");
+	if (!inFileData.is_open()) {
+		throw runtime_error("Файл не найден");
 	}
+	getline(inFileData, number);
+	countVariables = stoull(number);
+	if (countVariables < 1) throw logic_error("Число переменных должно быть >= 1");
+	while (getline(inFileData, number)) {
+		stringstream ss(number);
+		Data d;
+		int param;
+		for (size_t i = 0; i < countVariables; i++) {
+			if (!(ss >> param))
+				throw runtime_error("Недостаточно аргументов");
+			d.parameters.push_back(param);
+		}
+		if (!(ss >> d.answer))
+			throw runtime_error("Отсутсвует значение функции");
+		data.push_back(d);
+	}
+	inFileData.close();
+	if (data.empty())
+		throw runtime_error("Отсутствуют данные о функции");
 
 	meter = make_unique<Meter>(data,fine);
-
-	generator = make_unique<Generator>(
-		maxDepth,
-		countVariables
-	);
-
-	improver = make_unique<Improver>(
-		maxDepth,
-		sizeSelection,
-		countVariables,
-		*generator
-	);
-
-	simplifier = Simplifier();
 };
 
-Population GenMain::createPopulation() {
-	Population population(sizePopulation, *meter);
-	for (size_t i = 0; i < sizePopulation; i++) {
-		unique_ptr<Node> node = generator.get()->generate();
-		simplifier.simplify(node);
-		population.addIndividual(move(node));
+size_t GenMain::getBestIsland(const vector<unique_ptr<Island>>& islands) const{
+	size_t idBest = 0;
+	double measureBest = islands[0].get()->getBestMeasure();
+	for (size_t i = 1; i < islands.size(); i++) {
+		double measure = islands[i].get()->getBestMeasure();
+		if (measure < measureBest) {
+			measureBest = measure;
+			idBest = i;
+		}
 	}
-	return population;
+	return idBest;
+}
+
+void GenMain::migration(vector<unique_ptr<Island>>& islands) {
+	if (countIslands == 1)
+		return;
+	vector<vector<unique_ptr<Node>>> migrants;
+	migrants.reserve(countIslands);
+	for (const unique_ptr<Island>& island : islands)
+		migrants.push_back(island.get()->getBestNodes(countMigrant));
+	for (size_t i = 0; i < countIslands; i++)
+		islands[(i + 1) % countIslands].get()->migrations(move(migrants[i]));
 }
 
 unique_ptr<Node> GenMain::getFunction() {
-	Population oldPopulation = createPopulation();
-	size_t idPopulation = 1;
-	Population newPopulation = Population(sizePopulation, *meter);
-	while (oldPopulation.getMeasureBest() > target && idPopulation < maxCountPopulation) {
-		cout << oldPopulation.getMeasureBest()<<endl;
-		vector<bool> selectedNodes(sizePopulation, false);
-		const vector<double>& measures = oldPopulation.getMeasures();
-		for (size_t i = 0; i < elitismCount; i++) {
-			size_t idBestNode = sizePopulation;
-			double measureBestNode = +INFINITY;
-			for(size_t j=0;j<sizePopulation;j++)
-				if (!selectedNodes[j] && measures[j] < measureBestNode) {
-					measureBestNode = measures[j];
-					idBestNode = j;
-				}
-			selectedNodes[idBestNode] = true;
-			newPopulation.addIndividual(oldPopulation.getIndividual(idBestNode).node.get()->clone());
-		}
-		while (newPopulation.getSize() < sizePopulation) {
-			size_t parent1 = improver.get()->selection(measures);
-			size_t parent2 = improver.get()->selection(measures);
-			unique_ptr<Node> son = improver.get()->improve(
-				*oldPopulation.getIndividual(parent1).node,
-				*oldPopulation.getIndividual(parent2).node
-			);
-			simplifier.simplify(son);
-			newPopulation.addIndividual(move(son));
-		}
-		oldPopulation = move(newPopulation);
-		newPopulation.clear();
-		idPopulation++;
-		cout << idPopulation<<endl;
+	vector<unique_ptr<Island>> islands;
+	islands.reserve(countIslands);
+	for (size_t i = 0; i < countIslands; i++) {
+		islands.push_back(make_unique<Island>(
+			sizePopulation,
+			sizeSelection,
+			elitismCount,
+			maxDepth,
+			countVariables,
+			*meter
+		));
+		islands.back().get()->createPopulation();
 	}
-	return oldPopulation.getIndividual(oldPopulation.getIdBest()).node.get()->clone();
+	size_t idBestIsland = getBestIsland(islands);
+	for (size_t i = 1; i < maxCountPopulation; i++) {
+		cout << i << endl;
+		vector<future<void>> tasks;
+		tasks.reserve(countIslands);
+
+		for (const auto& island : islands) {
+			Island* ptr = island.get();
+
+			tasks.push_back(async(launch::async, [ptr]() {
+				ptr->nextPopulation();
+				}));
+		}
+
+		for (auto& task : tasks)
+			task.get();
+		if (i % intervalMigration == 0)
+			migration(islands);
+		idBestIsland = getBestIsland(islands);
+		double bestMeasure = islands[idBestIsland].get()->getBestMeasure();
+		cout << bestMeasure << endl;
+		if (bestMeasure <= target)
+			break;
+	}
+	return islands[idBestIsland].get()->getBestNode();
 }

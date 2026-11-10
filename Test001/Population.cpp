@@ -24,6 +24,21 @@ void Population::addIndividual(
 	}
 }
 
+void Population::addIndividual(
+	unique_ptr<Node> node,
+	double measure
+) {
+	individuals.emplace_back(
+		move(node),
+		measure
+	);
+	measures.push_back(measure);
+	if (measureBest > measure) {
+		idBest = measures.size() - 1;
+		measureBest = measure;
+	}
+}
+
 size_t Population::getSize() const{
 	return individuals.size();
 }
@@ -49,6 +64,23 @@ size_t Population::getIdBest() const {
 
 double Population::getMeasureBest() const {
 	return measureBest;
+}
+
+void Population::replaceWorst(unique_ptr<Node> node) {
+	double measure = meter.measure(*node);
+	size_t idWorst = 0;
+	for (size_t i = 0; i < sizePopulation; i++)
+		if (measures[i] > measures[idWorst])
+			idWorst = i;
+	individuals[idWorst] = Individual(
+		move(node),
+		measure
+	);
+	measures[idWorst] = measure;
+	if (measureBest > measure) {
+		measureBest = measure;
+		idBest = idWorst;
+	}
 }
 
 Population& Population::operator=(Population&& population) {

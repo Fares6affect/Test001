@@ -19,7 +19,7 @@ private:
 	double target;//Максимальное отклонение значений
 
 	size_t countIslands=4;//Число островов
-	size_t intervalMigration=10;//Интервал миграции
+	size_t intervalMigration=20;//Интервал миграции
 	size_t countMigrant=5;//Число мигрантов
 
 	vector<Data> data;//Данные функции

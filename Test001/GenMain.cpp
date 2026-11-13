@@ -95,7 +95,8 @@ unique_ptr<Node> GenMain::getFunction() {
 			elitismCount,
 			maxDepth,
 			countVariables,
-			*meter
+			*meter,
+			target
 		));
 		islands.back().get()->createPopulation();
 	}

@@ -8,8 +8,8 @@ Meter::Meter(
 double Meter::measure(const Node& node) const{
 	double mse = 0.0;
 	try {
-		for (size_t i = 0; i < data.size(); i++) {
-			double difference = calculator.calculate(node, data[i].parameters) - data[i].answer;
+		for (const Data& d: data) {
+			double difference = calculator.calculate(node, d.parameters) - d.answer;
 			if (!isfinite(difference))
 				return INFINITY;
 			mse += difference * difference;
@@ -17,7 +17,7 @@ double Meter::measure(const Node& node) const{
 				return INFINITY;
 		}
 	}
-	catch (domain_error) {
+	catch (const domain_error&) {
 		return INFINITY;
 	}
 	return mse / data.size() + fine * (node.size());

@@ -8,7 +8,9 @@ Island::Island(
 
 	size_t maxDepth,
 	size_t countVariables,
-	Meter& meter
+	Meter& meter,
+
+	double target
 ):sizePopulation(sizePopulation),
 	elitismCount(elitismCount),
 	meter(meter)
@@ -22,7 +24,8 @@ Island::Island(
 		maxDepth,
 		sizeSelection,
 		countVariables,
-		*generator
+		*generator,
+		target
 	);
 }
 
@@ -33,6 +36,7 @@ void Island::createPopulation() {
 		simplifier.simplify(node);
 		population.get()->addIndividual(move(node));
 	}
+	improver.get()->updateProbability(getBestMeasure());
 }
 
 unique_ptr<Node> Island::getBestNode() const {
@@ -110,4 +114,5 @@ void Island::nextPopulation() {
 		newPopulation.addIndividual(move(son));
 	}
 	population = make_unique<Population>(move(newPopulation));
+	improver.get()->updateProbability(getBestMeasure());
 }

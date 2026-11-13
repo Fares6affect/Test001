@@ -25,7 +25,9 @@ public:
 
 		size_t maxDepth,
 		size_t countVariables,
-		Meter& meter
+		Meter& meter,
+
+		double target
 	);
 
 	void createPopulation();

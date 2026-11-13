@@ -22,4 +22,5 @@ public:
 		const Node& node
 	) const;
 
+	void repair(Node& parent, Node& node);
 };

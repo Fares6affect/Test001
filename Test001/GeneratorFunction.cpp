@@ -21,6 +21,7 @@ GeneratorFunction::GeneratorFunction() {
 	mt19937 rand;
 	uniform_int_distribution<> countVarDist(0, 6);
 	size_t countVariables = countVarDist(rand);
+	countVariables = 1;
 	outFileData << countVariables << endl;
 
 	Generator generator(maxDepth, countVariables);

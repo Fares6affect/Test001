@@ -88,6 +88,12 @@ void GenMain::migration(vector<unique_ptr<Island>>& islands) {
 unique_ptr<Node> GenMain::getFunction() {
 	vector<unique_ptr<Island>> islands;
 	islands.reserve(countIslands);
+	vector<IslandStrategy> strategies = {
+		IslandStrategy::Local,
+		IslandStrategy::Unite,
+		IslandStrategy::Explore,
+		IslandStrategy::Struct
+	};
 	for (size_t i = 0; i < countIslands; i++) {
 		islands.push_back(make_unique<Island>(
 			sizePopulation,
@@ -96,6 +102,7 @@ unique_ptr<Node> GenMain::getFunction() {
 			maxDepth,
 			countVariables,
 			*meter,
+			strategies[i%4],
 			target
 		));
 		islands.back().get()->createPopulation();

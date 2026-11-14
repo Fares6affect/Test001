@@ -1,6 +1,8 @@
 #pragma once
 #include "UsingNode.h"
 #include "Generator.h"
+#include "IslandStrategy.h"
+#include "ImproverConfig.h"
 
 class Improver {
 private:
@@ -9,6 +11,7 @@ private:
 	size_t sizeSelection;
 	size_t countVariables;
 	Generator& generator;
+	ImproverConfig config;
 	double target;
 
 	double distAdaptation = 1.0;
@@ -20,18 +23,18 @@ private:
 	double bestMeasure = +INFINITY;
 	double initBestMeasure = +INFINITY;
 
-	double mainSelProb = 0.85;
+	double uniteProbability = 0.0;
+	double mutateProbability = 0.0;
 
-	double uniteProbability = 0.4;
-	double mutateProbability = uniteProbability + 0.4;
+	double mainSelProb = 0.0;
 
-	double mConstProb = 0.3;
-	double mVarProb = mConstProb + 0.15;
-	double mFuncProb = mVarProb + 0.1;
-	double mSubTreeProb = mFuncProb + 0.2;
-	double mDelProb = mSubTreeProb + 0.1;
-	double mInsProb = mDelProb + 0.1;
-	double mSwapProb = mInsProb + 0.05;
+	double mConstProb = 0.0;
+	double mVarProb = 0.0;
+	double mFuncProb = 0.0;
+	double mSubTreeProb = 0.0;
+	double mDelProb = 0.0;
+	double mInsProb = 0.0;
+	double mSwapProb = 0.0;
 
 public:
 
@@ -40,6 +43,7 @@ public:
 		size_t sizeSelection,
 		size_t countVariables,
 		Generator& generator,
+		IslandStrategy strategy,
 		double target
 	);
 

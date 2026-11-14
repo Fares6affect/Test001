@@ -4,6 +4,7 @@
 #include "Generator.h"
 #include "Improver.h"
 #include "Meter.h"
+#include "ConstOptimizer.h"
 
 class Island {
 private:
@@ -14,6 +15,7 @@ private:
 	unique_ptr<Improver> improver;
 	Simplifier simplifier;
 	Meter& meter;
+	ConstOptimizer constOptimizer;
 
 	unique_ptr<Population> population;
 
@@ -26,6 +28,7 @@ public:
 		size_t maxDepth,
 		size_t countVariables,
 		Meter& meter,
+		IslandStrategy strategy,
 
 		double target
 	);

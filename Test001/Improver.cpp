@@ -5,18 +5,33 @@ Improver::Improver(
 	size_t sizeSelection,
 	size_t countVariables,
 	Generator& generator,
+	IslandStrategy strategy,
 	double target
 ) :rand(random_device{}()),
 maxDepth(maxDepth),
 sizeSelection(sizeSelection),
 countVariables(countVariables),
 generator(generator),
+config(getConfig(strategy)),
 target(target)
 {
 	if (maxDepth < 1)
 		throw logic_error("Максимальная глубина должна быть >=1");
 	if (sizeSelection < 1)
 		throw logic_error("Количество родителей должно быть >=1");
+
+	uniteProbability = config.uniteProbability;
+	mutateProbability = uniteProbability + config.mutateProbability;
+
+	mainSelProb = config.mainSelProb;
+
+	mConstProb = config.mConstProb;
+	mVarProb = mConstProb + config.mVarProb;
+	mFuncProb = mVarProb + config.mFuncProb;
+	mSubTreeProb = mFuncProb + config.mSubTreeProb;
+	mDelProb = mSubTreeProb + config.mDelProb;
+	mInsProb = mDelProb + config.mInsProb;
+	mSwapProb = mInsProb + config.mSwapProb;
 }
 
 size_t Improver::selection(
@@ -68,9 +83,7 @@ unique_ptr<Node> Improver::mutateConst(const  Node& parent) {
 	UsingNode node = currentNodes[nodeDist(rand)];
 	double oldValue = node.node->get()->value;
 
-	double minStep = 0.1;
-	double relativeStep = 0.1;
-	double sigma = max(minStep, abs(oldValue) * relativeStep);
+	double sigma = max(1e-3, abs(oldValue) * 0.05);
 	normal_distribution<double> noise(0.0, sigma);
 	node.node->get()->value = oldValue + noise(rand);
 	return son;
@@ -112,13 +125,13 @@ unique_ptr<Node> Improver::mutateFunction(const Node& parent) {
 	Element nodeEl = node.node->get()->el;
 	Element el;
 	if (Node::arity(nodeEl) == 1) {
-		uniform_int_distribution<> unarOperDist(2, 6);
+		uniform_int_distribution<> unarOperDist(2, 7);
 		do {
 			el = static_cast<Element>(unarOperDist(rand));
 		} while (nodeEl == el);
 	}
 	else {
-		uniform_int_distribution<> binOperDist(7, 8);
+		uniform_int_distribution<> binOperDist(8,9);
 		do {
 			el = static_cast<Element>(binOperDist(rand));
 		} while (nodeEl == el);
@@ -175,7 +188,7 @@ unique_ptr<Node> Improver::mutateInsert(const Node& parent) {
 		return son;
 	uniform_int_distribution<> nodeDist(0, currentNodes.size() - 1);
 	UsingNode node = currentNodes[nodeDist(rand)];
-	uniform_int_distribution unarOperDist(2, 6);
+	uniform_int_distribution unarOperDist(2, 7);
 	unique_ptr<Node> root = Node::makeUnarOper(
 		static_cast<Element>(unarOperDist(rand)),
 		move(*node.node)
@@ -203,13 +216,13 @@ unique_ptr<Node> Improver::mutateSwap(const Node& parent) {
 unique_ptr<Node> Improver::mutate(const Node& parent) {
 	uniform_real_distribution<> mutateDist(0.0, 1.0);
 	double d = mutateDist(rand);
-	if (d < mConstProb)
+	if (d <mConstProb)
 		return mutateConst(parent);
 	else if (d < mVarProb)
 		return mutateVar(parent);
-	else if(d<mFuncProb)
+	else if(d< mFuncProb)
 		return mutateFunction(parent);
-	else if (d <mSubTreeProb)
+	else if (d < mSubTreeProb)
 		return mutateSubTree(parent);
 	else if (d < mDelProb)
 		return mutateDelete(parent);
@@ -250,11 +263,53 @@ void Improver::updateProbability(double newBestMeasure) {
 	stagAdaptation = min(1.0, (double)countGWI / limitStagnation);
 	exploration = 0.8 * distAdaptation + 0.2 * stagAdaptation;
 
-	uniteProbability = 0.5 - 0.2 * stagAdaptation - 0.2 * distAdaptation;
-	mutateProbability = uniteProbability + 0.4 - 0.1 * stagAdaptation - 0.1 * distAdaptation;
-	mainSelProb = 0.85 - 0.15 * stagAdaptation;
+	//V2
 
-	double localAdaptation = 1.0 - exploration;
+	double baseCross = config.uniteProbability;
+	double baseMutate = config.mutateProbability;
+	double baseRandom = 1.0 - baseCross - baseMutate;
+	double randomProbability = baseRandom + 0.4 * exploration * (1.0 - baseRandom);
+	double remainingProbability = 1.0 - randomProbability;
+	double crossRatio = baseCross / (baseCross + baseMutate);
+
+	uniteProbability = remainingProbability * crossRatio;
+	mutateProbability = remainingProbability;
+
+	mainSelProb = config.mainSelProb * (1.0 - 0.2 * stagAdaptation);
+
+	double base[] = {
+	config.mConstProb,
+	config.mVarProb,
+	config.mFuncProb,
+	config.mSubTreeProb,
+	config.mDelProb,
+	config.mInsProb,
+	config.mSwapProb
+	};
+
+	double blend = 0.35 * exploration;
+	double probabilities[7];
+
+	for (size_t i = 0; i < 7; i++) {
+		probabilities[i] =
+			(1.0 - blend) * base[i] + blend / 7.0;
+	}
+
+	mConstProb = probabilities[0];
+	mVarProb = mConstProb + probabilities[1];
+	mFuncProb = mVarProb + probabilities[2];
+	mSubTreeProb = mFuncProb + probabilities[3];
+	mDelProb = mSubTreeProb + probabilities[4];
+	mInsProb = mDelProb + probabilities[5];
+	mSwapProb = mInsProb + probabilities[6];
+	
+	//V2/
+
+	/*uniteProbability = config.uniteProbability - 0.2 * stagAdaptation - 0.2 * distAdaptation;
+	mutateProbability = uniteProbability + config.mutateProbability - 0.1 * stagAdaptation - 0.1 * distAdaptation;
+	mainSelProb = config.mainSelProb * (1.0 - 0.2 * stagAdaptation);*/
+
+	/*double localAdaptation = 1.0 - exploration;
 
 	double constProbability = 0.15 + 0.25 * localAdaptation;
 	double varProbability = 0.05 + 0.10 * localAdaptation;
@@ -270,7 +325,7 @@ void Improver::updateProbability(double newBestMeasure) {
 	mSubTreeProb = mFuncProb + 0.20 * structuralScale;
 	mDelProb = mSubTreeProb + 0.10 * structuralScale;
 	mInsProb = mDelProb + 0.10 * structuralScale;
-	mSwapProb = 1.0;
+	mSwapProb = 1.0;*/
 }
 
 unique_ptr<Node> Improver::improve(const Node& parent1, const Node& parent2) {

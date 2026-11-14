@@ -94,7 +94,7 @@ string Calculator::getFormula(
 	case Element::Log:
 		return "log^(" + getFormula(*node.left) + ")";
 	case Element::Neg:
-		return "-(" + getFormula(*node.left) + ")";
+		return "(-(" + getFormula(*node.left) + "))";
 	case Element::Conv:
 		return "1/(" + getFormula(*node.left) + ")";
 	case Element::Sqrt:

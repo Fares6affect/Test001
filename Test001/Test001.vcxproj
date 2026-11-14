@@ -140,10 +140,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Calculator.cpp" />
+    <ClCompile Include="ConstOptimizer.cpp" />
     <ClCompile Include="Generator.cpp" />
     <ClCompile Include="GeneratorFunction.cpp" />
     <ClCompile Include="GenMain.cpp" />
     <ClCompile Include="Improver.cpp" />
+    <ClCompile Include="ImproverConfig.cpp" />
     <ClCompile Include="Island.cpp" />
     <ClCompile Include="Meter.cpp" />
     <ClCompile Include="Node.cpp" />
@@ -153,12 +155,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Calculator.h" />
+    <ClInclude Include="ConstOptimizer.h" />
     <ClInclude Include="Data.h" />
     <ClInclude Include="Element.h" />
     <ClInclude Include="Generator.h" />
     <ClInclude Include="GeneratorFunction.h" />
     <ClInclude Include="GenMain.h" />
     <ClInclude Include="Improver.h" />
+    <ClInclude Include="ImproverConfig.h" />
+    <ClInclude Include="IslandStrategy.h" />
     <ClInclude Include="Individual.h" />
     <ClInclude Include="Island.h" />
     <ClInclude Include="Meter.h" />

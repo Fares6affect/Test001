@@ -8,12 +8,10 @@ maxDepth(maxDepth),
 countVariables(countVariables){ }
 
 unique_ptr<Node> Generator::generateTerminal() {
-	if (countVariables < 1)
-		throw logic_error("Недопустимое количество переменных");
 	uniform_int_distribution<> constOrVar(0, 1);
 	if (constOrVar(rand)) {
-		uniform_real_distribution<> exponentDist(-6.0, 6.0);
-		uniform_real_distribution<> signDist(0,1);
+		normal_distribution<> exponentDist(0.0, 2.0);
+		uniform_int_distribution<> signDist(0,1);
 		return Node::makeConst((signDist(rand)*2-1)*pow(10.0,exponentDist(rand)));
 	}
 	uniform_int_distribution<> varDist(0, countVariables - 1);

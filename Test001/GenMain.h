@@ -1,6 +1,7 @@
 #pragma once
 #include "Meter.h"
 #include "Island.h"
+#include "IslandStrategy.h"
 #include <utility>
 #include <fstream>
 #include <sstream>

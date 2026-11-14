@@ -11,6 +11,7 @@ GeneratorFunction::GeneratorFunction() {
 	if (!outFileData.is_open()) {
 		throw runtime_error("Файл не найден");
 	}
+	outFileData.close();
 
 	string number;
 	getline(inFileSetting, number);
@@ -19,32 +20,45 @@ GeneratorFunction::GeneratorFunction() {
 	inFileSetting.close();
 
 	mt19937 rand;
-	uniform_int_distribution<> countVarDist(0, 6);
+	uniform_int_distribution<> countVarDist(1, 3);
 	size_t countVariables = countVarDist(rand);
-	countVariables = 1;
-	outFileData << countVariables << endl;
 
 	Generator generator(maxDepth, countVariables);
 	Simplifier simplifier;
 	Calculator calculator;
 
-	unique_ptr<Node> function = generator.generate();
-	while (function.get()->el == Element::Const)
-		function = generator.generate();
-	simplifier.simplify(function);
-	cout << calculator.getFormula(*function)<<endl;
+	bool f;
+	do {
+		f = false;
+		outFileData.open("DATA_TEST.txt", ios::out | ios::trunc);
+		outFileData << countVariables << endl;
 
-	uniform_int_distribution<> countDataDist(5, 20);
-	size_t countData = countDataDist(rand);
-	uniform_int_distribution<> varDist(-100, 100);
-	for (size_t i = 0; i < countData; i++) {
-		vector<int> data;
-		for (size_t j = 0; j < countVariables; j++) {
-			data.push_back(varDist(rand));
-			outFileData << data.back() << " ";
+		unique_ptr<Node> function = generator.generate();
+		while (function.get()->el == Element::Const)
+			function = generator.generate();
+		simplifier.simplify(function);
+		cout << calculator.getFormula(*function) << endl;
+
+		uniform_int_distribution<> countDataDist(5, 20);
+		size_t countData = countDataDist(rand);
+		uniform_int_distribution<> varDist(-100, 100);
+		for (size_t i = 0; i < countData; i++) {
+			vector<int> data;
+			for (size_t j = 0; j < countVariables; j++) {
+				data.push_back(varDist(rand));
+				outFileData << data.back() << " ";
+			}
+			try {
+				outFileData << calculator.calculate(*function, data) << endl;
+			}
+			catch (domain_error&) {
+				cout << "ERROR"<<endl;
+				f = true;
+				break;
+			}
 		}
-		outFileData << calculator.calculate(*function,data) << endl;
-	}
+		outFileData.close();
+	} while (f);
 
 	outFileData.close();
 }

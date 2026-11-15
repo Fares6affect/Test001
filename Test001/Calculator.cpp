@@ -53,7 +53,7 @@ double Calculator::calculate(
 		double res = calculate(*node.left, variables);
 		if (!isfinite(res))
 			throw domain_error("Непредставимое число");
-		return abs(res);
+		return fabs(res);
 	}
 	case Element::Add: {
 		double res1 = calculate(*node.left, variables);
@@ -111,4 +111,109 @@ string Calculator::getFormula(
 		return "x" + to_string(node.variableIndex);
 	default: throw logic_error("Неизвестное состояние");
 	}
+}
+
+vector<SimpleElement> Calculator::getElements(
+	const Node& node
+) const {
+	switch (node.el) {
+	case Element::Exp: {
+		vector<SimpleElement> resSon = getElements(*node.left);
+		string strResSon = (resSon[0].sign ? "-" : "") + resSon[0].element;
+		for (size_t i =1;i<resSon.size();i++)
+			strResSon += (resSon[i].sign?"-":"+") + resSon[i].element;
+		SimpleElement se("e^(" + strResSon + ")", false);
+		vector<SimpleElement> res = { se };
+		return res;
+	}
+	case Element::Log: {
+		vector<SimpleElement> resSon = getElements(*node.left);
+		string strResSon = (resSon[0].sign ? "-" : "") + resSon[0].element;
+		for (size_t i = 1;i < resSon.size();i++)
+			strResSon += (resSon[i].sign ? "-" : "+") + resSon[i].element;
+		SimpleElement se("log(" + strResSon + ")", false);
+		vector<SimpleElement> res = { se };
+		return res;
+	}
+	case Element::Neg: {
+		vector<SimpleElement> resSon = getElements(*node.left);
+		for (size_t i = 0;i < resSon.size();i++)
+			resSon[i].sign = !resSon[i].sign;
+		return resSon;
+	}
+	case Element::Conv: {
+		vector<SimpleElement> resSon = getElements(*node.left);
+		string strResSon = (resSon[0].sign ? "-" : "") + resSon[0].element;
+		for (size_t i = 1;i < resSon.size();i++)
+			strResSon += (resSon[i].sign ? "-" : "+") + resSon[i].element;
+		SimpleElement se("1/(" + strResSon + ")", false);
+		vector<SimpleElement> res = { se };
+		return res;
+	}
+	case Element::Sqrt: {
+		vector<SimpleElement> resSon = getElements(*node.left);
+		string strResSon = (resSon[0].sign ? "-" : "") + resSon[0].element;
+		for (size_t i = 1;i < resSon.size();i++)
+			strResSon += (resSon[i].sign ? "-" : "+") + resSon[i].element;
+		SimpleElement se("sqrt(" + strResSon + ")", false);
+		vector<SimpleElement> res = { se };
+		return res;
+	}
+	case Element::Abs: {
+		vector<SimpleElement> resSon = getElements(*node.left);
+		string strResSon = (resSon[0].sign ? "-" : "") + resSon[0].element;
+		for (size_t i = 1;i < resSon.size();i++)
+			strResSon += (resSon[i].sign ? "-" : "+") + resSon[i].element;
+		SimpleElement se("|" + strResSon + "|", false);
+		vector<SimpleElement> res = { se };
+		return res;
+	}
+	case Element::Add: {
+		vector<SimpleElement> resSon1 = getElements(*node.left);
+		vector<SimpleElement> resSon2 = getElements(*node.right);
+		size_t resSon1Size = resSon1.size();
+		size_t resSon2Size = resSon2.size();
+		vector<SimpleElement> res;
+		res.reserve(resSon1Size + resSon2Size);
+		for (size_t i = 0;i < resSon1Size;i++)
+			res.push_back(resSon1[i]);
+		for (size_t i = 0;i < resSon2Size;i++)
+			res.push_back(resSon2[i]);
+		return res;
+	}
+	case Element::Mul: {
+		vector<SimpleElement> resSon1 = getElements(*node.left);
+		vector<SimpleElement> resSon2 = getElements(*node.right);
+		size_t resSon1Size = resSon1.size();
+		size_t resSon2Size = resSon2.size();
+		vector<SimpleElement> res;
+		res.reserve(resSon1Size * resSon2Size);
+		for (size_t i = 0;i < resSon1Size;i++)
+			for (size_t j = 0;j < resSon2Size;j++) {
+				SimpleElement se(resSon1[i].element+"*"+resSon2[j].element, resSon1[i].sign ^ resSon2[j].sign);
+				res.push_back(se);
+			}
+		return res;
+	}
+	case Element::Const: {
+		SimpleElement se(to_string(fabs(node.value)), node.value<0.0);
+		vector<SimpleElement> res = { se };
+		return res;
+	}
+	case Element::Var: {
+		SimpleElement se("x" + to_string(node.variableIndex), false);
+		vector<SimpleElement> res = { se };
+		return res;
+	}
+	}
+}
+
+string Calculator::getOptimizeFormula(
+	const Node& node
+) const {
+	vector<SimpleElement> elements = getElements(node);
+	string res = (elements[0].sign ? "-" : "") + elements[0].element;
+	for (size_t i = 1;i<elements.size();i++)
+		res += (elements[i].sign ? "-" : "+") + elements[i].element;
+	return res;
 }

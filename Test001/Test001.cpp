@@ -10,5 +10,7 @@ int main()
 	GeneratorFunction gf;
 	Calculator calculator;
 	GenMain gm;
-	cout<<calculator.getFormula(*gm.getFunction().get());
+	unique_ptr<Node> answer = gm.getFunction();
+	cout << calculator.getFormula(*answer) << endl;
+	cout<<calculator.getOptimizeFormula(*answer);
 }

@@ -259,7 +259,8 @@ void Improver::updateProbability(double newBestMeasure) {
 	
 	if (initBestMeasure == INFINITY)
 		initBestMeasure = newBestMeasure;
-	distAdaptation = (log(bestMeasure) - log(target)) / (log(initBestMeasure) - log(target));
+	double logT = target ? log(target) : 0.0;
+	distAdaptation = (log(bestMeasure) - logT / (log(initBestMeasure) - logT));
 	stagAdaptation = min(1.0, (double)countGWI / limitStagnation);
 	exploration = 0.8 * distAdaptation + 0.2 * stagAdaptation;
 

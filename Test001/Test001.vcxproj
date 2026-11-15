@@ -169,6 +169,7 @@
     <ClInclude Include="Meter.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Population.h" />
+    <ClInclude Include="SimpleElement.h" />
     <ClInclude Include="Simplifier.h" />
     <ClInclude Include="UsingNode.h" />
   </ItemGroup>

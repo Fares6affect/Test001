@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include "Element.h"
 #include <cmath>
+#include "SimpleElement.h"
 
 class Calculator {
 public:
@@ -16,6 +17,10 @@ public:
 
 	string getFormula(
 		const Node& node
+	) const;
+
+	vector<SimpleElement> getElements(
+		const Node&
 	) const;
 
 	string getOptimizeFormula(

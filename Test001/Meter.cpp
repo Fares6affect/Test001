@@ -1,4 +1,5 @@
 #include "Meter.h"
+#include <iostream>
 
 Meter::Meter(
 	const vector<Data>& data,
@@ -18,6 +19,7 @@ double Meter::measure(const Node& node) const{
 		}
 	}
 	catch (const domain_error&) {
+		//cout << "ERROR";
 		return INFINITY;
 	}
 	return mse / data.size() + fine * (node.size());

@@ -19,7 +19,8 @@ Island::Island(
 {
 	generator = make_unique<Generator>(
 		maxDepth,
-		countVariables
+		countVariables,
+		strategy
 	);
 
 	improver = make_unique<Improver>(

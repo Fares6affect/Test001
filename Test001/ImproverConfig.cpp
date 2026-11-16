@@ -1,6 +1,6 @@
 #include "ImproverConfig.h"
 
-ImproverConfig getConfig(IslandStrategy strategy) {
+ImproverConfig getImproverConfig(IslandStrategy strategy) {
 	switch (strategy) {
 	case IslandStrategy::Local:
 		return {

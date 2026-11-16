@@ -142,6 +142,7 @@
     <ClCompile Include="Calculator.cpp" />
     <ClCompile Include="ConstOptimizer.cpp" />
     <ClCompile Include="Generator.cpp" />
+    <ClCompile Include="GeneratorConfig.cpp" />
     <ClCompile Include="GeneratorFunction.cpp" />
     <ClCompile Include="GenMain.cpp" />
     <ClCompile Include="Improver.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Data.h" />
     <ClInclude Include="Element.h" />
     <ClInclude Include="Generator.h" />
+    <ClInclude Include="GeneratorConfig.h" />
     <ClInclude Include="GeneratorFunction.h" />
     <ClInclude Include="GenMain.h" />
     <ClInclude Include="Improver.h" />

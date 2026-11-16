@@ -2,10 +2,12 @@
 
 Generator::Generator(
 	size_t maxDepth,
-	size_t countVariables
-) :rand(random_device{}()),
-maxDepth(maxDepth),
-countVariables(countVariables){ }
+	size_t countVariables,
+	IslandStrategy strategy
+):rand(random_device{}()),
+	maxDepth(maxDepth),
+	countVariables(countVariables),
+	config(getGeneratorConfig(strategy)){ }
 
 unique_ptr<Node> Generator::generateTerminal() {
 	uniform_int_distribution<> constOrVar(0, 1);
@@ -21,41 +23,56 @@ unique_ptr<Node> Generator::generateTerminal() {
 }
 
 unique_ptr<Node> Generator::generateUnarOper(size_t depth) {
-	uniform_int_distribution<> unarOperDist(2, 7);
+	const array<Element, 6> operators = {
+		Element::Exp,
+		Element::Log,
+		Element::Neg,
+		Element::Conv,
+		Element::Sqrt,
+		Element::Abs
+	};
+	discrete_distribution<size_t> dist(
+		config.unarOperProb.begin(),
+		config.unarOperProb.end()
+	);
 	return Node::makeUnarOper(
-		static_cast<Element>(unarOperDist(rand)),
+		operators[dist(rand)],
 		generate(depth + 1)
 	);
 }
 
 unique_ptr<Node> Generator::generateBinOper(size_t depth) {
-	uniform_int_distribution<> binOperDist(8, 9);
+	const array<Element, 2> operators = {
+		Element::Add,
+		Element::Mul,
+	};
+	discrete_distribution<size_t> dist(
+		config.binOperProb.begin(),
+		config.binOperProb.end()
+	);
 	return Node::makeBinOper(
-		static_cast<Element>(binOperDist(rand)),
+		operators[dist(rand)],
 		generate(depth + 1),
 		generate(depth + 1)
 	);
 }
-//Позже проанализировать оптимальное распределение вероятностей категорий узлов
-//Оптимльная формула не должна иметь глубокие унарные узлы
+
 unique_ptr<Node> Generator::generate(size_t depth) {
 	if (depth < maxDepth) {
-		uniform_int_distribution<> operDist(0, 9);
-		switch (operDist(rand)) {
-		case 0:
-		case 1:
-		case 2:
-		case 3:
-			return generateTerminal();//40% выпадения терминального узла
-		case 4:
-		case 5:
-			return generateUnarOper(depth);//20% выпадения унарного узла 
-		case 6:
-		case 7:
-		case 8:
-		case 9:
-			return generateBinOper(depth);//40% выпадения бинарного узла
+		array<double, 3> probs = {
+			config.termProb,
+			config.unarProb,
+			config.binProb
+		};
+		discrete_distribution<size_t> dist(
+			probs.begin(),
+			probs.end()
+		);
+		switch (dist(rand)) {
+		case 0: return generateTerminal();
+		case 1: return generateUnarOper(depth);
+		case 2: return generateBinOper(depth);
 		}
 	}
-	return generateTerminal();//Проверить логику глубины
+	return generateTerminal();
 };

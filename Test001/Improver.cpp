@@ -12,7 +12,7 @@ maxDepth(maxDepth),
 sizeSelection(sizeSelection),
 countVariables(countVariables),
 generator(generator),
-config(getConfig(strategy)),
+config(getImproverConfig(strategy)),
 target(target)
 {
 	if (maxDepth < 1)

@@ -44,4 +44,4 @@ struct ImproverConfig {
 	{}
 };
 
-ImproverConfig getConfig(IslandStrategy strategy);
+ImproverConfig getImproverConfig(IslandStrategy strategy);

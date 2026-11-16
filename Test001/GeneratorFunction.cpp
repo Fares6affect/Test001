@@ -23,7 +23,11 @@ GeneratorFunction::GeneratorFunction() {
 	uniform_int_distribution<> countVarDist(1, 3);
 	size_t countVariables = countVarDist(rand);
 
-	Generator generator(maxDepth, countVariables);
+	Generator generator(
+		maxDepth, 
+		countVariables, 
+		IslandStrategy::Local
+	);
 	Simplifier simplifier;
 	Calculator calculator;
 
@@ -48,14 +52,13 @@ GeneratorFunction::GeneratorFunction() {
 				data.push_back(varDist(rand));
 				outFileData << data.back() << " ";
 			}
-			try {
-				outFileData << calculator.calculate(*function, data) << endl;
-			}
-			catch (domain_error&) {
-				cout << "ERROR"<<endl;
+			CalcResult cr = calculator.tryCalculate(*function, data);
+			if (!cr.isValid()) {
 				f = true;
+				cout<<"ERROR"<<endl<<endl;
 				break;
 			}
+			outFileData << cr.value << endl;
 		}
 		outFileData.close();
 	} while (f);

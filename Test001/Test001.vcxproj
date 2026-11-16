@@ -154,6 +154,8 @@
     <ClCompile Include="Test001.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CalcResult.h" />
+    <ClInclude Include="CalcStatus.h" />
     <ClInclude Include="Calculator.h" />
     <ClInclude Include="ConstOptimizer.h" />
     <ClInclude Include="Data.h" />

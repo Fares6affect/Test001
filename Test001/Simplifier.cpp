@@ -93,6 +93,23 @@ void Simplifier::simplify(unique_ptr<Node>& node) const {
 		}
 		return;
 	}
+	case Element::Abs: {
+		try {
+			simplify(node.get()->left);
+			if (node.get()->left.get()->el != Element::Const)
+				return;
+			node = Node::makeConst(
+				calculator.calculate(
+					*node,
+					variables
+				)
+			);
+		}
+		catch (domain_error&) {
+			return;
+		}
+		return;
+	}
 	case Element::Add:
 	{
 		simplify(node->left);

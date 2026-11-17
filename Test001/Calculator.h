@@ -16,11 +16,6 @@
 class Calculator {
 public:
 
-	double calculate(
-		const Node& node,
-		const vector<int>& variables
-	) const;
-
 	CalcResult tryCalculate(
 		const Node& node,
 		const vector<int>& variables

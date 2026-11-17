@@ -55,8 +55,6 @@ GenMain::GenMain()
 		data.push_back(d);
 	}
 	inFileData.close();
-	if (data.empty())
-		throw runtime_error("Отсутствуют данные о функции");
 
 	meter = make_unique<Meter>(data,fine);
 };

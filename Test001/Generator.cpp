@@ -35,9 +35,13 @@ unique_ptr<Node> Generator::generateUnarOper(size_t depth) {
 		config.unarOperProb.begin(),
 		config.unarOperProb.end()
 	);
+	unique_ptr<Node> son;
+	do {
+		son = generate(depth + 1);
+	} while (son.get()->el == Element::Const);
 	return Node::makeUnarOper(
 		operators[dist(rand)],
-		generate(depth + 1)
+		move(son)
 	);
 }
 
@@ -50,10 +54,15 @@ unique_ptr<Node> Generator::generateBinOper(size_t depth) {
 		config.binOperProb.begin(),
 		config.binOperProb.end()
 	);
+	unique_ptr<Node> son1 = generate(depth + 1);
+	unique_ptr<Node> son2 = generate(depth + 1);
+	while (son1.get()->el == Element::Const && son2.get()->el == Element::Const) {
+		son2 = generate(depth + 1);
+	}
 	return Node::makeBinOper(
 		operators[dist(rand)],
-		generate(depth + 1),
-		generate(depth + 1)
+		move(son1),
+		move(son2)
 	);
 }
 

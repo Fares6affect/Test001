@@ -37,7 +37,9 @@ CalcResult Calculator::tryCalculate(
 		CalcResult cr = tryCalculate(*node.left, variables);
 		if (!cr.isValid()) return cr;
 		if (cr.value == 0.0) return { 0.0, CalcStatus::ConvError };
-		return { 1/(cr.value), CalcStatus::Valid };
+		double res = 1 / (cr.value);
+		if (!isfinite(res)) return { 0.0, CalcStatus::NonFinite };
+		return { res, CalcStatus::Valid };
 	}
 
 	case Element::Sqrt: {

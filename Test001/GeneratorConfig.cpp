@@ -17,7 +17,7 @@ GeneratorConfig getGeneratorConfig(IslandStrategy strategy) {
 	case IslandStrategy::Explore:
 		return {
 			20,50,30,
-			{20,15,15,15,15,20},
+			{50,10,10,10,10,10},
 			{50,50}
 		};
 	case IslandStrategy::Struct:

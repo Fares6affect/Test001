@@ -1,143 +1,112 @@
 #include "Simplifier.h"
 void Simplifier::simplify(unique_ptr<Node>& node) const {
 	switch (node.get()->el) {
+
 	case Element::Const:
 	case Element::Var:
 		return;
+
 	case Element::Exp: {
-		try {
-			simplify(node.get()->left);
-			if (node.get()->left.get()->el == Element::Const)
-				node = Node::makeConst(
-					calculator.calculate(
-						*node,
-						variables
-					)
-				);
-			else if (node.get()->left.get()->el == Element::Log)
-				node = move(node.get()->left.get()->left);
-			return;
+		simplify(node.get()->left);
+		if (node.get()->left.get()->el == Element::Const) {
+			CalcResult cr = calculator.tryCalculate(*node, {});
+			if (cr.isValid())
+				node = Node::makeConst(cr.value);
 		}
-		catch (domain_error&) {
-			return;
-		}
+		else if (node.get()->left.get()->el == Element::Log)
+			node = move(node.get()->left.get()->left);
+		return;
 	}
+
 	case Element::Log: {
-		try {
-			simplify(node.get()->left);
-			if (node.get()->left.get()->el == Element::Const)
-				node = Node::makeConst(
-					calculator.calculate(
-						*node,
-						variables
-					)
-				);
-			else if (node.get()->left.get()->el == Element::Exp)
-				node = move(node.get()->left.get()->left);
-			return;
+		simplify(node.get()->left);
+		if (node.get()->left.get()->el == Element::Const) {
+			CalcResult cr = calculator.tryCalculate(*node, {});
+			if (cr.isValid())
+				node = Node::makeConst(cr.value);
 		}
-		catch (domain_error&) {
-			return;
-		}
+		else if (node.get()->left.get()->el == Element::Exp)
+			node = move(node.get()->left.get()->left);
+		return;
 	}
+
 	case Element::Neg: {
-		try {
-			simplify(node.get()->left);
-			if (node.get()->left.get()->el == Element::Const)
-				node = Node::makeConst(
-					calculator.calculate(
-						*node,
-						variables
-					)
-				);
-			else if (node.get()->left.get()->el == Element::Neg)
-				node = move(node.get()->left.get()->left);
-			return;
+		simplify(node.get()->left);
+		if (node.get()->left.get()->el == Element::Const) {
+			CalcResult cr = calculator.tryCalculate(*node, {});
+			if (cr.isValid())
+				node = Node::makeConst(cr.value);
 		}
-		catch (domain_error&) {
-			return;
-		}
+		else if (node.get()->left.get()->el == Element::Neg)
+			node = move(node.get()->left.get()->left);
+		return;
 	}
+
 	case Element::Conv: {
-		try {
-			simplify(node.get()->left);
-			if (node.get()->left.get()->el == Element::Const)
-				node = Node::makeConst(
-					calculator.calculate(
-						*node,
-						variables
-					)
-				);
-			else if (node.get()->left.get()->el == Element::Conv)
-				node = move(node.get()->left.get()->left);
-			return;
+		simplify(node.get()->left);
+		if (node.get()->left.get()->el == Element::Const) {
+			CalcResult cr = calculator.tryCalculate(*node, {});
+			if (cr.isValid())
+				node = Node::makeConst(cr.value);
 		}
-		catch (domain_error&) {
-			return;
-		}
+		else if (node.get()->left.get()->el == Element::Conv)
+			node = move(node.get()->left.get()->left);
+		return;
 	}
+
 	case Element::Sqrt: {
-		try {
-			simplify(node.get()->left);
-			if (node.get()->left.get()->el != Element::Const)
-				return;
-			node = Node::makeConst(
-				calculator.calculate(
-					*node,
-					variables
-				)
-			);
-		}
-		catch (domain_error&) {
-			return;
+		simplify(node.get()->left);
+		if (node.get()->left.get()->el == Element::Const) {
+			CalcResult cr = calculator.tryCalculate(*node, {});
+			if (cr.isValid())
+				node = Node::makeConst(cr.value);
 		}
 		return;
 	}
+
 	case Element::Abs: {
-		try {
-			simplify(node.get()->left);
-			if (node.get()->left.get()->el != Element::Const)
-				return;
-			node = Node::makeConst(
-				calculator.calculate(
-					*node,
-					variables
-				)
-			);
+		simplify(node.get()->left);
+		if (node.get()->left.get()->el == Element::Const) {
+			CalcResult cr = calculator.tryCalculate(*node, {});
+			if (cr.isValid())
+				node = Node::makeConst(cr.value);
 		}
-		catch (domain_error&) {
-			return;
-		}
+		else if (node.get()->left.get()->el == Element::Neg)
+			node.get()->left = move(node.get()->left.get()->left);
 		return;
 	}
+
 	case Element::Add:
 	{
 		simplify(node->left);
 		simplify(node->right);
-		if (node->left->el == Element::Const) {
+		if (node.get()->left.get()->el == Element::Const) {
 			if (node->left->value == 0.0)
 				node = move(node->right);
-			else if (node->right->el == Element::Const)
-				node = Node::makeConst(
-					node->left->value + node->right->value
-				);
+			else if (node->right->el == Element::Const) {
+				CalcResult cr = calculator.tryCalculate(*node, {});
+				if (cr.isValid())
+					node = Node::makeConst(cr.value);
+			}
 		}
 		else if (node->right->el == Element::Const && node->right->value == 0.0)
 			node = move(node->left);
 		return;
 	}
+
 	case Element::Mul: {
 		simplify(node->left);
 		simplify(node->right);
-		if (node->left->el == Element::Const) {
+		if (node.get()->left.get()->el == Element::Const) {
 			if (node->left->value == 0.0)
 				node = Node::makeConst(0.0);
 			else if (node->left->value == 1.0)
 				node = move(node->right);
-			else if (node->right->el == Element::Const)
-				node = Node::makeConst(
-					node->left->value * node->right->value
-				);
+			else if (node->right->el == Element::Const) {
+				CalcResult cr = calculator.tryCalculate(*node, {});
+				if (cr.isValid())
+					node = Node::makeConst(cr.value);
+			}
 		}
 		else if (node->right->el == Element::Const)
 			if (node->right->value == 0.0)
@@ -146,5 +115,6 @@ void Simplifier::simplify(unique_ptr<Node>& node) const {
 				node = move(node->left);
 		return;
 	}
+
 	}
 }

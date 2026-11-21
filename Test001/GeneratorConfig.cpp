@@ -4,25 +4,29 @@ GeneratorConfig getGeneratorConfig(IslandStrategy strategy) {
 	switch (strategy) {
 	case IslandStrategy::Local:
 		return {
-			30,40,30,
+			5, 50,
+			6, 4,
 			{30,15,15,10,15,15},
 			{50,50}
 		};
 	case IslandStrategy::Unite:
 		return {
-			25,35,40,
+			5, 45,
+			4, 6,
 			{25,15,15,15,15,15},
 			{50,50}
 		};
 	case IslandStrategy::Explore:
 		return {
-			20,50,30,
+			3, 40,
+			7, 3,
 			{50,10,10,10,10,10},
 			{50,50}
 		};
 	case IslandStrategy::Struct:
 		return {
-			20,30,50,
+			2, 55,
+			3, 7,
 			{20,10,20,20,20,10},
 			{50,50}
 		};

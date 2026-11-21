@@ -9,9 +9,9 @@ Node::Node(Element element): el(element){}
 unique_ptr<Node> Node::makeConst(
 	double d
 ) {
-	unique_ptr<Node>  node = make_unique<Node>(Element::Const);
+	unique_ptr<Node> node = make_unique<Node>(Element::Const);
 	node->value = d;
-	return node;
+	return node; 
 }
 
 unique_ptr<Node> Node::makeVar(
@@ -26,12 +26,13 @@ unique_ptr<Node> Node::makeUnarOper(
 	Element oper,
 	unique_ptr<Node> left
 ) {
-	if (arity(oper) == 1) {
-		unique_ptr<Node>  node = make_unique<Node>(oper);
-		node->left = move(left);
-		return node;
-	}
-	throw "Неправильное состояние";
+	if (arity(oper) != 1)
+		throw invalid_argument("Неправильное состояние");
+	if (!left)
+		throw invalid_argument("Операнды не должны быть nullptr");
+	unique_ptr<Node>  node = make_unique<Node>(oper);
+	node->left = move(left);
+	return node;
 }
 
 unique_ptr<Node> Node::makeBinOper(
@@ -39,16 +40,14 @@ unique_ptr<Node> Node::makeBinOper(
 	unique_ptr<Node> left,
 	unique_ptr<Node> right
 ) {
-	if (!left || !right) {
-		throw std::invalid_argument("Операнды не должны быть nullptr");
-	}
-	if (arity(oper) == 2) {
-		unique_ptr<Node>  node = make_unique<Node>(oper);
-		node->left = move(left);
-		node->right = move(right);
-		return node;
-	}
-	throw "Неправильное состояние";
+	if (arity(oper) != 2)
+		throw invalid_argument("Неправильное состояние");
+	if (!left || !right)
+		throw invalid_argument("Операнды не должны быть nullptr");
+	unique_ptr<Node>  node = make_unique<Node>(oper);
+	node->left = move(left);
+	node->right = move(right);
+	return node;
 }
 
 size_t Node::arity(Element el) {
@@ -71,10 +70,6 @@ size_t Node::arity(Element el) {
 
 	default: throw logic_error("Неизвестное состояние");
 	}
-}
-
-bool Node::isTerminal() const {
-	return el == Element::Const || el == Element::Var;
 }
 
 unique_ptr<Node> Node::clone() const {

@@ -7,7 +7,7 @@ Generator::Generator(
 ):rand(random_device{}()),
 	maxDepth(maxDepth),
 	countVariables(countVariables),
-	config(getGeneratorConfig(strategy)){ }
+	config(getGeneratorConfig(strategy)){}
 
 unique_ptr<Node> Generator::generateTerminal() {
 	uniform_int_distribution<> constOrVar(0, 1);
@@ -31,7 +31,7 @@ unique_ptr<Node> Generator::generateUnarOper(size_t depth) {
 		Element::Sqrt,
 		Element::Abs
 	};
-	discrete_distribution<size_t> dist(
+	discrete_distribution<size_t> unarDist(
 		config.unarOperProb.begin(),
 		config.unarOperProb.end()
 	);
@@ -40,7 +40,7 @@ unique_ptr<Node> Generator::generateUnarOper(size_t depth) {
 		son = generate(depth + 1);
 	} while (son.get()->el == Element::Const);
 	return Node::makeUnarOper(
-		operators[dist(rand)],
+		operators[unarDist(rand)],
 		move(son)
 	);
 }
@@ -50,7 +50,7 @@ unique_ptr<Node> Generator::generateBinOper(size_t depth) {
 		Element::Add,
 		Element::Mul,
 	};
-	discrete_distribution<size_t> dist(
+	discrete_distribution<size_t> binDist(
 		config.binOperProb.begin(),
 		config.binOperProb.end()
 	);
@@ -60,28 +60,31 @@ unique_ptr<Node> Generator::generateBinOper(size_t depth) {
 		son2 = generate(depth + 1);
 	}
 	return Node::makeBinOper(
-		operators[dist(rand)],
+		operators[binDist(rand)],
 		move(son1),
 		move(son2)
 	);
 }
 
 unique_ptr<Node> Generator::generate(size_t depth) {
-	if (depth < maxDepth) {
-		array<double, 3> probs = {
-			config.termProb,
-			config.unarProb,
-			config.binProb
-		};
-		discrete_distribution<size_t> dist(
-			probs.begin(),
-			probs.end()
-		);
-		switch (dist(rand)) {
-		case 0: return generateTerminal();
-		case 1: return generateUnarOper(depth);
-		case 2: return generateBinOper(depth);
-		}
+	if (depth >= maxDepth)
+		return generateTerminal();
+	double progress = static_cast<double>(depth - 1) / (maxDepth - 2);
+	double termProb = config.termProb + (config.maxTermProb-config.termProb) * progress;
+	double operProb = config.unarProb + config.binProb;
+	double unarProb = (100.0 - termProb) * config.unarProb / operProb;
+	double binProb = (100.0 - termProb) * config.binProb / operProb;
+
+	array<double, 3> probs = {
+		termProb,
+		unarProb,
+		binProb
+	};
+	discrete_distribution<size_t> dist = discrete_distribution<size_t>(probs.begin(), probs.end());
+
+	switch (dist(rand)) {
+	case 0: return generateTerminal();
+	case 1: return generateUnarOper(depth);
+	case 2: return generateBinOper(depth);
 	}
-	return generateTerminal();
 };

@@ -118,7 +118,6 @@ void ConstOptimizer::optimizeTogether(
     size_t count = constants.size();
 
     vector<double> currentValues(count);
-    vector<double> bestValues(count);
     vector<double> delta(count);
 
     for (size_t i = 0; i < count; i++)

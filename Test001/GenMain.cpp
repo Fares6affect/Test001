@@ -8,7 +8,8 @@ GenMain::GenMain()
 	if (!inFileSetting.is_open()) {
 		throw runtime_error("Файл не найден");
 	}
-	
+
+	//добавить настройкц островов
 	string number;
 	getline(inFileSetting, number);
 	maxDepth = stoull(number);

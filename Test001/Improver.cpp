@@ -125,15 +125,15 @@ unique_ptr<Node> Improver::mutateFunction(const Node& parent) {
 	Element nodeEl = node.node->get()->el;
 	Element el;
 	if (Node::arity(nodeEl) == 1) {
-		uniform_int_distribution<> unarOperDist(2, 7);
+		uniform_int_distribution<> unarOperDist(0,unarOpers.size()-1);
 		do {
-			el = static_cast<Element>(unarOperDist(rand));
+			el = unarOpers[unarOperDist(rand)];
 		} while (nodeEl == el);
 	}
 	else {
-		uniform_int_distribution<> binOperDist(8,9);
+		uniform_int_distribution<> binOperDist(0,binOpers.size()-1);
 		do {
-			el = static_cast<Element>(binOperDist(rand));
+			el = binOpers[binOperDist(rand)];
 		} while (nodeEl == el);
 	}
 	node.node->get()->el = el;
@@ -260,7 +260,7 @@ void Improver::updateProbability(double newBestMeasure) {
 	if (initBestMeasure == INFINITY)
 		initBestMeasure = newBestMeasure;
 	double logT = target ? log(target) : 0.0;
-	distAdaptation = (log(bestMeasure) - logT / (log(initBestMeasure) - logT));
+	distAdaptation = (log(bestMeasure) - logT) / (log(initBestMeasure) - logT);
 	stagAdaptation = min(1.0, (double)countGWI / limitStagnation);
 	exploration = 0.8 * distAdaptation + 0.2 * stagAdaptation;
 

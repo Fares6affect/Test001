@@ -12,7 +12,6 @@ private:
 
 	size_t idBest=0;
 	double measureBest=+INFINITY;
-	vector<double> measures;
 
 public:
 	Population(

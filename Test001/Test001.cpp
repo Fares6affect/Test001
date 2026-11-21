@@ -7,7 +7,7 @@ using namespace std;
 
 int main()
 {
-	//GeneratorFunction gf;
+	GeneratorFunction gf;
 	Calculator calculator;
 	GenMain gm;
 	unique_ptr<Node> answer = gm.getFunction();

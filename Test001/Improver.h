@@ -14,6 +14,20 @@ private:
 	ImproverConfig config;
 	double target;
 
+	const array<Element, 6> unarOpers = {
+	Element::Exp,
+	Element::Log,
+	Element::Neg,
+	Element::Conv,
+	Element::Sqrt,
+	Element::Abs
+	};
+
+	const array<Element, 2> binOpers = {
+		Element::Add,
+		Element::Mul
+	};
+
 	double distAdaptation = 1.0;
 	double stagAdaptation = 0.0;
 	double exploration = 1.0;

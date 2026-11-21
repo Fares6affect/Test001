@@ -5,6 +5,8 @@ using namespace std;
 
 struct GeneratorConfig {
 	double termProb;
+	double maxTermProb;
+
 	double unarProb;
 	double binProb;
 

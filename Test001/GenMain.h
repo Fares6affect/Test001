@@ -33,10 +33,6 @@ private:
 public:
 	GenMain();
 
-	unique_ptr<Node> islandEvolve(
-		Population& population
-	);
-
 	size_t getBestIsland(const vector<unique_ptr<Island>>& islands) const;
 
 	void migration(vector<unique_ptr<Island>>& islands);

@@ -76,10 +76,10 @@ size_t GenMain::getBestIsland(const vector<unique_ptr<Island>>& islands) const{
 void GenMain::migration(vector<unique_ptr<Island>>& islands) {
 	if (countIslands == 1)
 		return;
-	vector<vector<unique_ptr<Node>>> migrants;
+	vector<vector<Individual>> migrants;
 	migrants.reserve(countIslands);
 	for (const unique_ptr<Island>& island : islands)
-		migrants.push_back(island.get()->getBestNodes(countMigrant));
+		migrants.push_back(island.get()->getBestIndividuals(countMigrant));
 	for (size_t i = 0; i < countIslands; i++)
 		islands[(i + 1) % countIslands].get()->migrations(move(migrants[i]));
 }
@@ -107,11 +107,15 @@ unique_ptr<Node> GenMain::getFunction() {
 		islands.back().get()->createPopulation();
 	}
 	size_t idBestIsland = getBestIsland(islands);
-	for (size_t i = 1; i < maxCountPopulation; i++) {
+	double bestMeasure = islands[idBestIsland].get()->getBestMeasure();
+	cout << 1 << endl;
+	cout << bestMeasure << endl;
+	if (bestMeasure <= target)
+		return islands[idBestIsland].get()->getBestNode();
+	for (size_t i = 2; i < maxCountPopulation; i++) {
 		cout << i << endl;
 		vector<future<void>> tasks;
 		tasks.reserve(countIslands);
-
 		for (const auto& island : islands) {
 			Island* ptr = island.get();
 
@@ -119,16 +123,15 @@ unique_ptr<Node> GenMain::getFunction() {
 				ptr->nextPopulation();
 				}));
 		}
-
 		for (auto& task : tasks)
 			task.get();
-		if (i % intervalMigration == 0)
-			migration(islands);
 		idBestIsland = getBestIsland(islands);
 		double bestMeasure = islands[idBestIsland].get()->getBestMeasure();
 		cout << bestMeasure << endl;
 		if (bestMeasure <= target)
 			break;
+		if (i % intervalMigration == 0)
+			migration(islands);
 	}
 	return islands[idBestIsland].get()->getBestNode();
 }

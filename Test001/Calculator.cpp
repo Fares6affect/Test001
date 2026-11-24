@@ -1,7 +1,7 @@
 #include "Calculator.h"
 
 CalcResult Calculator::tryCalculate(
-	const Node& node,
+	Node& node,
 	const vector<int>& variables
 ) const {
 	switch (node.el) {
@@ -16,14 +16,20 @@ CalcResult Calculator::tryCalculate(
 		CalcResult cr = tryCalculate(*node.left, variables);
 		if (!cr.isValid()) return cr;
 		double res = exp(cr.value);
-		if (!isfinite(res)) return { 0.0, CalcStatus::NonFinite };
+		if (!isfinite(res)) {
+			node.variableIndex = (size_t)(CalcStatus::NonFinite);
+			return { 0.0, CalcStatus::NonFinite };
+		}
 		return { res, CalcStatus::Valid };
 	}
 
 	case Element::Log: {
 		CalcResult cr = tryCalculate(*node.left, variables);
 		if (!cr.isValid()) return cr;
-		if (cr.value <= 0.0) return { cr.value, CalcStatus::LogError };
+		if (cr.value <= 0.0) {
+			node.variableIndex = (size_t)(CalcStatus::LogError);
+			return { cr.value, CalcStatus::LogError };
+		}
 		return { log(cr.value), CalcStatus::Valid };
 	}
 
@@ -36,16 +42,25 @@ CalcResult Calculator::tryCalculate(
 	case Element::Conv: {
 		CalcResult cr = tryCalculate(*node.left, variables);
 		if (!cr.isValid()) return cr;
-		if (cr.value == 0.0) return { 0.0, CalcStatus::ConvError };
+		if (cr.value == 0.0) {
+			node.variableIndex = (size_t)(CalcStatus::ConvError);
+			return { 0.0, CalcStatus::ConvError };
+		}
 		double res = 1 / (cr.value);
-		if (!isfinite(res)) return { 0.0, CalcStatus::NonFinite };
+		if (!isfinite(res)) {
+			node.variableIndex = (size_t)(CalcStatus::NonFinite);
+			return { 0.0, CalcStatus::NonFinite };
+		}
 		return { res, CalcStatus::Valid };
 	}
 
 	case Element::Sqrt: {
 		CalcResult cr = tryCalculate(*node.left, variables);
 		if (!cr.isValid()) return cr;
-		if (cr.value < 0.0) return { 0.0, CalcStatus::SqrtError };
+		if (cr.value < 0.0) {
+			node.variableIndex = (size_t)(CalcStatus::SqrtError);
+			return { 0.0, CalcStatus::SqrtError };
+		}
 		return { sqrt(cr.value), CalcStatus::Valid };
 	}
 
@@ -57,21 +72,27 @@ CalcResult Calculator::tryCalculate(
 
 	case Element::Add: {
 		CalcResult cr1 = tryCalculate(*node.left, variables);
-		if (!cr1.isValid()) return cr1;
 		CalcResult cr2 = tryCalculate(*node.right, variables);
+		if (!cr1.isValid()) return cr1;
 		if (!cr2.isValid()) return cr2;
 		double res = cr1.value + cr2.value;
-		if(!isfinite(res)) return {0.0,CalcStatus::NonFinite};
+		if (!isfinite(res)) {
+			node.variableIndex = (size_t)(CalcStatus::NonFinite);
+			return { 0.0,CalcStatus::NonFinite };
+		}
 		return { res, CalcStatus::Valid };
 	}
 
 	case Element::Mul: {
 		CalcResult cr1 = tryCalculate(*node.left, variables);
-		if (!cr1.isValid()) return cr1;
 		CalcResult cr2 = tryCalculate(*node.right, variables);
+		if (!cr1.isValid()) return cr1;
 		if (!cr2.isValid()) return cr2;
 		double res = cr1.value * cr2.value;
-		if (!isfinite(res)) return { 0.0,CalcStatus::NonFinite };
+		if (!isfinite(res)) {
+			node.variableIndex = (size_t)(CalcStatus::NonFinite);
+			return { 0.0,CalcStatus::NonFinite };
+		}
 		return { res, CalcStatus::Valid };
 	}
 

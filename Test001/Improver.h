@@ -3,6 +3,7 @@
 #include "Generator.h"
 #include "IslandStrategy.h"
 #include "ImproverConfig.h"
+#include "Individual.h"
 
 class Improver {
 private:
@@ -62,7 +63,7 @@ public:
 	);
 
 	size_t selection(
-		const vector<double>& measures
+		const vector<Individual>& individuals
 	);
 
 	void usingNodes(

@@ -24,4 +24,6 @@ public:
 	);
 
 	unique_ptr<Node> generate(size_t depth = 1);
+
+	size_t getMaxDepth() const;
 };

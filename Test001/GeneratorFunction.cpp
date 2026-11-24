@@ -35,6 +35,7 @@ GeneratorFunction::GeneratorFunction() {
 	do {
 		f = false;
 		outFileData.open("DATA_TEST.txt", ios::out | ios::trunc);
+		outFileData << setprecision(numeric_limits<double>::max_digits10);
 		outFileData << countVariables << endl;
 
 		unique_ptr<Node> function = generator.generate();

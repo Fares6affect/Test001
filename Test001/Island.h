@@ -37,13 +37,11 @@ public:
 
 	unique_ptr<Node> getBestNode() const;
 
-	vector<unique_ptr<Node>> getBestNodes(size_t count) const;
+	vector<Individual> getBestIndividuals(size_t count) const;
 	
 	double getBestMeasure() const;
 
-	void migration(unique_ptr<Node> migrant);
-
-	void migrations(vector<unique_ptr<Node>> migrants);
+	void migrations(vector<Individual> migrants);
 
 	void nextPopulation();
 };

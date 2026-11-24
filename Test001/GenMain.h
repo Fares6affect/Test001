@@ -29,13 +29,11 @@ private:
 	unique_ptr<Meter> meter;
 
 	Population createPopulation();
+	size_t getBestIsland(const vector<unique_ptr<Island>>& islands) const;
+	void migration(vector<unique_ptr<Island>>& islands);
 
 public:
 	GenMain();
-
-	size_t getBestIsland(const vector<unique_ptr<Island>>& islands) const;
-
-	void migration(vector<unique_ptr<Island>>& islands);
 
 	unique_ptr<Node> getFunction();
 };

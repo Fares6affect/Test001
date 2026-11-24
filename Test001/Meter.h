@@ -14,5 +14,5 @@ public:
 		double fine
 	);
 
-	double measure(const Node& node) const;
+	double measure(Node& node) const;
 };

@@ -35,18 +35,18 @@ target(target)
 }
 
 size_t Improver::selection(
-	const vector<double>& measures
+	const vector<Individual>& individuals
 ) {
-	if (measures.empty())
+	if (individuals.empty())
 		throw logic_error("Список пуст");
 	uniform_real_distribution<> selectionDist(0.0, 1.0);
-	uniform_int_distribution<> idParent(0, measures.size() - 1);
+	uniform_int_distribution<> idParent(0, individuals.size() - 1);
 	if (selectionDist(rand) < mainSelProb) {
 		size_t res = 0; double measure = +INFINITY;
 		for (size_t i = 0; i < sizeSelection; i++) {
 			size_t id = idParent(rand);
-			if (measure > measures[id]) {
-				measure = measures[id];
+			if (measure > individuals[id].measure) {
+				measure = individuals[id].measure;
 				res = id;
 			}
 		}
@@ -334,7 +334,13 @@ unique_ptr<Node> Improver::improve(const Node& parent1, const Node& parent2) {
 	double d = improveDist(rand);
 	if (d < uniteProbability)
 		return uniteNodes(parent1, parent2);
-	else if (d < mutateProbability)
-		return mutate(parent1);
+	else if (d < mutateProbability) {
+		discrete_distribution<size_t> countDist({ 60,25,15 });
+		size_t countMutate = countDist(rand)+1;
+		unique_ptr<Node> son = parent1.clone();
+		for (size_t i = 0; i < countMutate; i++)
+			son = mutate(*son);
+		return son;
+	}
 	return generator.generate();
 };

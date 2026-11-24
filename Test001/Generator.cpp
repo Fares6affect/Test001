@@ -88,3 +88,7 @@ unique_ptr<Node> Generator::generate(size_t depth) {
 	case 2: return generateBinOper(depth);
 	}
 };
+
+size_t Generator::getMaxDepth() const {
+	return maxDepth;
+}

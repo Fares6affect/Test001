@@ -151,6 +151,7 @@
     <ClCompile Include="Meter.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="Population.cpp" />
+    <ClCompile Include="Repairer.cpp" />
     <ClCompile Include="Simplifier.cpp" />
     <ClCompile Include="Test001.cpp" />
   </ItemGroup>
@@ -173,6 +174,7 @@
     <ClInclude Include="Meter.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Population.h" />
+    <ClInclude Include="Repairer.h" />
     <ClInclude Include="SimpleElement.h" />
     <ClInclude Include="Simplifier.h" />
     <ClInclude Include="UsingNode.h" />

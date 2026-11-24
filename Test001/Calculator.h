@@ -17,7 +17,7 @@ class Calculator {
 public:
 
 	CalcResult tryCalculate(
-		const Node& node,
+		Node& node,
 		const vector<int>& variables
 	) const;
 

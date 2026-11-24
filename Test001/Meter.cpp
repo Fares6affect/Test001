@@ -6,7 +6,7 @@ Meter::Meter(
 	double fine
 ) :data(data), fine(fine){}
 
-double Meter::measure(const Node& node) const{
+double Meter::measure(Node& node) const{
 	/*double mse = 0.0;
 	for (const Data& d: data) {
 		CalcResult res = calculator.tryCalculate(node, d.parameters);

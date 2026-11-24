@@ -3,6 +3,7 @@
 #include "Meter.h"
 #include <vector>
 #include <stdexcept>
+#include "Repairer.h"
 
 class Population {
 private:
@@ -13,10 +14,13 @@ private:
 	size_t idBest=0;
 	double measureBest=+INFINITY;
 
+	Repairer repairer;
+
 public:
 	Population(
 		size_t sizePopulation,
-		Meter& meter
+		Meter& meter,
+		Generator& generator
 	);
 
 	void addIndividual(
@@ -32,15 +36,15 @@ public:
 
 	const Individual& getIndividual(size_t index) const;
 
-	void clear();
+	const vector<Individual>& getIndividuals() const;
 
-	const vector<double>& getMeasures() const;
+	void clear();
 
 	size_t getIdBest() const;
 
 	double getMeasureBest() const;
 
-	void replaceWorst(unique_ptr<Node> node);
+	void replaceWorst(Individual ind);
 
 	Population& operator=(Population&& population);
 	

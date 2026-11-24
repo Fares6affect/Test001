@@ -36,8 +36,6 @@ public:
 
 	static size_t arity(Element el);
 
-	bool isTerminal() const;
-
 	unique_ptr<Node> clone() const;
 
 	size_t size() const;

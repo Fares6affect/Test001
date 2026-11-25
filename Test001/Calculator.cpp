@@ -99,34 +99,6 @@ CalcResult Calculator::tryCalculate(
 	}
 }
 
-string Calculator::getFormula(
-	const Node& node
-) const {
-	switch (node.el) {
-	case Element::Exp:
-		return "e^(" + getFormula(*node.left) + ")";
-	case Element::Log:
-		return "log(" + getFormula(*node.left) + ")";
-	case Element::Neg:
-		return "(-(" + getFormula(*node.left) + "))";
-	case Element::Conv:
-		return "1/(" + getFormula(*node.left) + ")";
-	case Element::Sqrt:
-		return "sqrt(" + getFormula(*node.left) + ")";
-	case Element::Abs:
-		return "|" + getFormula(*node.left) + "|";
-	case Element::Add:
-		return "(" + getFormula(*node.left) + "+" + getFormula(*node.right) + ")";
-	case Element::Mul:
-		return "(" + getFormula(*node.left) + ")*(" + getFormula(*node.right) + ")";
-	case Element::Const:
-		return to_string(node.value);
-	case Element::Var:
-		return "x" + to_string(node.variableIndex);
-	default: throw logic_error("Неизвестное состояние");
-	}
-}
-
 vector<SimpleElement> Calculator::simplifyElements(
 	const vector<SimpleElement>& elements
 ) const {
@@ -164,7 +136,7 @@ vector<SimpleElement> Calculator::getElements(
 	case Element::Log:
 		return { SimpleElement(1.0,{"log(" + getOptimizeFormula(*node.left) + ")"}) };
 	case Element::Conv:
-		return { SimpleElement(1.0,{"1/(" + getOptimizeFormula(*node.left) + ")"}) };
+		return { SimpleElement(1.0,{"(1/(" + getOptimizeFormula(*node.left) + "))"}) };
 	case Element::Sqrt:
 		return { SimpleElement(1.0,{"sqrt(" + getOptimizeFormula(*node.left) + ")"}) };
 	case Element::Abs: {
@@ -206,6 +178,7 @@ string Calculator::getOptimizeFormula(
 	if (elements.empty())
 		return "0";
 	ostringstream stream;
+	stream << setprecision(numeric_limits<double>::max_digits10);
 	for (size_t i = 0; i < elements.size(); i++) {
 		const SimpleElement& element = elements[i];
 		double k = element.k;
@@ -214,11 +187,11 @@ string Calculator::getOptimizeFormula(
 		else stream << (k < 0.0 ? "-" : "");
 		k = fabs(k);
 		if (element.mns.empty()) {
-			stream << setprecision(numeric_limits<double>::max_digits10) << k;
+			stream << k;
 			continue;
 		}
 		if (k!=1.0)
-			stream << setprecision(numeric_limits<double>::max_digits10) << k << "*";
+			stream << k << "*";
 		for (size_t j = 0; j < element.mns.size(); j++) {
 			if (j > 0)
 				stream << "*";

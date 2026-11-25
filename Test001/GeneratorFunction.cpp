@@ -42,7 +42,7 @@ GeneratorFunction::GeneratorFunction() {
 		while (function.get()->el == Element::Const)
 			function = generator.generate();
 		simplifier.simplify(function);
-		cout << calculator.getFormula(*function) << endl;
+		cout << calculator.getOptimizeFormula(*function) << endl;
 
 		uniform_int_distribution<> countDataDist(5, 20);
 		size_t countData = countDataDist(rand);

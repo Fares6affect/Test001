@@ -71,7 +71,8 @@ void Simplifier::simplify(unique_ptr<Node>& node) const {
 			if (cr.isValid())
 				node = Node::makeConst(cr.value);
 		}
-		else if (node.get()->left.get()->el == Element::Neg)
+		else if (node.get()->left.get()->el == Element::Neg||
+			node.get()->left.get()->el == Element::Abs)
 			node.get()->left = move(node.get()->left.get()->left);
 		return;
 	}

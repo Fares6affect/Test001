@@ -40,10 +40,6 @@ void Island::createPopulation() {
 		unique_ptr<Node> node = generator.get()->generate();
 		simplifier.simplify(node);
 		constOptimizer.optimize(*node);
-		//
-		Calculator calculator;
-		if (node.get()->el == Element::Exp) cout<<calculator.getOptimizeFormula(*node)<<endl;
-		//
 		population.get()->addIndividual(move(node));
 	}
 	improver.get()->updateProbability(getBestMeasure());
@@ -100,10 +96,6 @@ void Island::nextPopulation() {
 		);
 		simplifier.simplify(son);
 		constOptimizer.optimize(*son);
-		//
-		/*Calculator calculator;
-		if (son.get()->el == Element::Exp) cout<<calculator.getOptimizeFormula(*son)<<endl;*/
-		//
 		newPopulation.addIndividual(move(son));
 	}
 	population = make_unique<Population>(move(newPopulation));

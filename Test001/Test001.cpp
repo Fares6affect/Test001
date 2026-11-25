@@ -11,6 +11,5 @@ int main()
 	Calculator calculator;
 	GenMain gm;
 	unique_ptr<Node> answer = gm.getFunction();
-	cout << calculator.getFormula(*answer) << endl;
-	cout<<calculator.getOptimizeFormula(*answer);
+	cout << calculator.getOptimizeFormula(*answer) << endl << endl;
 }

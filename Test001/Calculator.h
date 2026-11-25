@@ -21,10 +21,6 @@ public:
 		const vector<int>& variables
 	) const;
 
-	string getFormula(
-		const Node& node
-	) const;
-
 	vector<SimpleElement> simplifyElements(
 		const vector<SimpleElement>& elements
 	) const;
